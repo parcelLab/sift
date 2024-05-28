@@ -1,0 +1,7 @@
+build
+/coverage/
+CODEOWNERS
+/dist/
+Containerfile
+*.prisma
+renovate.json
