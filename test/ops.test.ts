@@ -172,7 +172,6 @@ describe("$eq", async () => {
 				{ foo: [{ bar: "qux" }] },
 			],
 			expected: [{ foo: [{}, { bar: "baz" }] }],
-			opts: { skip: true },
 		},
 	];
 

@@ -105,7 +105,7 @@ function genEq(
 	const eqSym = sc.inc();
 	results.push(eqSym);
 
-	const safePath = pathParts.join("?.");
+	const safePath = getSafePath(pathParts);
 
 	const mode: Mode = ov == null ? "nor" : "or";
 	const eqResults = [];
@@ -113,16 +113,16 @@ function genEq(
 	for (let i = 1; i < pathParts.length; i++) {
 		const firstPart = pathParts.slice(0, i + 1);
 		const lastPart = pathParts.slice(i + 1);
+		const docSym = "d";
+		const safeFirstPart = getSafePath(firstPart);
+		const safeLastPart = getSafePath([docSym, ...lastPart]);
 
 		const arrSym = sc.inc();
 		eqResults.push(arrSym);
 
-		str += `const ${arrSym} = (Array.isArray(${firstPart.join("?.")})) && `;
+		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && `;
 
-		const docSym = "d";
-		const safeLastPart = [docSym, ...lastPart].join("?.");
-
-		str += `${firstPart.join(".")}.some((${docSym}) => `;
+		str += `${safeFirstPart}.some((${docSym}) => `;
 
 		if (ov == null) {
 			str += `${safeLastPart}`;
@@ -155,4 +155,19 @@ function genEq(
 	}
 
 	return str;
+}
+
+function getSafePath(parts: string[]): string {
+	let path = parts[0] ?? "";
+
+	for (const part of parts.slice(1)) {
+		path += `?.[${stringifyPart(part)}]`;
+	}
+
+	return path;
+}
+
+function stringifyPart(part: string): string | number {
+	const n = parseInt(part);
+	return isNaN(n) ? JSON.stringify(part) : n;
 }
