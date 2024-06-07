@@ -6,7 +6,7 @@ import { getExpectedMongoDocs } from "./mongo";
 describe("$eq", async () => {
 	const testCases: TestCase[] = [
 		{
-			name: "simple $eq against string",
+			name: "explicit $eq",
 			filter: { foo: { $eq: "bar" } },
 			input: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 			expected: [{ foo: "bar" }],
@@ -18,8 +18,19 @@ describe("$eq", async () => {
 			expected: [{ foo: "bar" }],
 		},
 		{
-			name: "explicit object match",
+			name: "implicit $eq, full object match",
 			filter: { foo: { bar: 1, $size: 2 } },
+			input: [
+				{ foo: "bar" },
+				{},
+				{ foo: [{ bar: 1 }, { bar: 2 }] },
+				{ foo: { bar: 1, $size: 2 } },
+			],
+			expected: [{ foo: { bar: 1, $size: 2 } }],
+		},
+		{
+			name: "explicit $eq, full object match",
+			filter: { foo: { $eq: { bar: 1, $size: 2 } } },
 			input: [
 				{ foo: "bar" },
 				{},
@@ -63,10 +74,15 @@ describe("$eq", async () => {
 			expected: [{ foo: { bar: { baz: "qux" } } }],
 		},
 		{
-			name: "nested object match with arrays",
+			name: "nested object path with arrays",
 			filter: { "foo.bar": "baz" },
-			input: [{}],
-			expected: [{}],
+			input: [
+				{ foo: [{ bar: "baz" }] },
+				{},
+				{ foo: "bar" },
+				{ foo: [{ bar: "qux" }] },
+			],
+			expected: [{ foo: [{ bar: "baz" }] }],
 			opts: { todo: true },
 		},
 	];
@@ -91,7 +107,7 @@ function runTestCases(testCases: TestCase[]) {
 	for (const testCase of testCases) {
 		test(testCase.name, testCase.opts, async (c) => {
 			c.onTestFailed(() => {
-				console.log("DEBUG for", c.task.name);
+				console.log("DEBUG:", c.task.name);
 				compile(testCase.filter, { debug: true });
 			});
 

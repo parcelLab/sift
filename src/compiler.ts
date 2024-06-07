@@ -56,11 +56,11 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	for (const path in query) {
 		const exp = query[path];
 
-		let safePath = [docSym, ...path.split(".")].join("?.");
+		const safePath = [docSym, ...path.split(".")].join("?.");
 
 		if (typeof exp !== "object") {
 			/** when exp is not an object, it's an implicit $eq where the ov is exp */
-			let varSym = sc.inc();
+			const varSym = sc.inc();
 			logicalSets.add(varSym);
 
 			str += `const ${varSym} = ${safePath} === ${JSON.stringify(exp)}; `;
@@ -69,21 +69,24 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 			 * when exp has keys that aren't ops, it's an explicit object match where
 			 * each key/value has to strictly match
 			 */
-			let varSym = sc.inc();
+			const varSym = sc.inc();
 			logicalSets.add(varSym);
 
-			const ov = JSON.stringify(exp);
-
-			str += `const ${varSym} = JSON.stringify(${safePath}) === ${JSON.stringify(ov)}; `;
+			const ov = JSON.stringify(JSON.stringify(exp));
+			str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
 		} else {
 			for (const op in exp) {
 				if (op === "$eq") {
-					const ov = exp[op];
-
-					let varSym = sc.inc();
+					const varSym = sc.inc();
 					logicalSets.add(varSym);
 
-					str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
+					if (typeof exp[op] === "object") {
+						const ov = JSON.stringify(JSON.stringify(exp[op]));
+						str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
+					} else {
+						const ov = exp[op];
+						str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
+					}
 				}
 			}
 		}
