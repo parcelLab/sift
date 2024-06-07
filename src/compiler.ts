@@ -28,10 +28,15 @@ import { Query, Filter } from "./types";
 /** Symbols */
 const docSym = "doc";
 
+interface CompilerOptions {
+	/** Debug mode, dumps the function string into console */
+	debug?: boolean;
+}
+
 /**
  * Compiles a mongo filter query into a filter function
  */
-export function compile(query: Query): Filter {
+export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	let str = '"use strict"; ';
 
 	const SC = new SymbolCounter();
@@ -62,7 +67,9 @@ export function compile(query: Query): Filter {
 
 	str += `return ${retSym}`;
 
-	console.log(str);
+	if (options.debug) {
+		console.log(str);
+	}
 
 	return new Function(docSym, str) as Filter;
 }
