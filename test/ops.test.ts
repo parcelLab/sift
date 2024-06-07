@@ -63,6 +63,18 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested object path, full object match",
+			filter: { "foo.bar": { baz: "qux", $eq: "bar" } },
+			input: [
+				{ foo: { bar: { baz: "qux", $eq: "bar" } } },
+				{ foo: { bar: { baz: "qux", bla: "jaz" } } },
+				{},
+				{ foo: "bar" },
+				{ foo: { bar: "baz" } },
+			],
+			expected: [{ foo: { bar: { baz: "qux", $eq: "bar" } } }],
+		},
+		{
+			name: "nested object path, full object match",
 			filter: { "foo.bar": { baz: "qux" } },
 			input: [
 				{ foo: { bar: { baz: "qux" } } },
@@ -98,7 +110,33 @@ describe("$eq", async () => {
 			expected: [{ foo: { bar: null } }, { foo: null }, { foo: "bar" }, {}],
 		},
 		{
-			name: "nested object path with arrays",
+			name: "match against arrays on ov",
+			filter: { "foo.bar": ["baz"] },
+			input: [
+				{ foo: { bar: "baz" } },
+				{ foo: { bar: ["baz"] } },
+				{ foo: { bar: ["baz", "bar"] } },
+				{},
+				{ foo: "bar" },
+				{ foo: [{ bar: "qux" }] },
+			],
+			expected: [{ foo: { bar: ["baz"] } }],
+		},
+		{
+			name: "match against arrays on doc",
+			filter: { "foo.bar": "baz" },
+			input: [
+				{ foo: { bar: ["bar"] } },
+				{ foo: { bar: ["baz", "bar"] } },
+				{},
+				{ foo: "bar" },
+				{ foo: [{ bar: "qux" }] },
+			],
+			expected: [{ foo: { bar: ["baz", "bar"] } }],
+			opts: { todo: true },
+		},
+		{
+			name: "nested object path with intermediate arrays on doc",
 			filter: { "foo.bar": "baz" },
 			input: [
 				{ foo: [{ bar: "baz" }] },

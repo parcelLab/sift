@@ -21,7 +21,7 @@ export const cmpOps = new Set([
 	"$nin",
 ]);
 
-export type OpValue = any; // string | number | object | array | null | undefined;
+export type OpValue = string | number | object | null | undefined;
 
 export type Exp = { [op in CmpOp]: OpValue };
 

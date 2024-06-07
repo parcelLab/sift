@@ -1,4 +1,4 @@
-import { Exp, Filter, OpValue, Query, cmpOps } from "./types";
+import { Filter, OpValue, Query, cmpOps } from "./types";
 
 /**
  * Terminology
@@ -47,47 +47,20 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 		const safePath = [docSym, ...path.split(".")].join("?.");
 
-		if (expOrOv == null) {
-			const varSym = sc.inc();
-			logicalSets.add(varSym);
+		/** When there are non-ops it the entire ov is used as a deep strict equal match */
+		const isAllOps =
+			expOrOv &&
+			typeof expOrOv === "object" &&
+			Object.keys(expOrOv).every((k) => cmpOps.has(k));
 
-			str += `const ${varSym} = ${safePath} == null; `;
-		} else if (typeof expOrOv !== "object") {
-			/** when exp is not an object, it's an implicit $eq where the ov is exp */
-			const varSym = sc.inc();
-			logicalSets.add(varSym);
-
-			const ov: OpValue = expOrOv;
-			str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
-		} else if (Object.keys(expOrOv).some((k) => !cmpOps.has(k))) {
-			/**
-			 * when exp has keys that aren't ops, it's an explicit object match where
-			 * each key/value has to strictly match
-			 */
-			const varSym = sc.inc();
-			logicalSets.add(varSym);
-
-			const ov = JSON.stringify(JSON.stringify(expOrOv));
-			str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
-		} else {
-			for (const op in expOrOv) {
-				if (op === "$eq") {
-					const varSym = sc.inc();
-					logicalSets.add(varSym);
-
-					const exp = expOrOv as Exp;
-
-					if (exp[op] == null) {
-						str += `const ${varSym} = ${safePath} == null; `;
-					} else if (typeof exp[op] === "object") {
-						const ov = JSON.stringify(JSON.stringify(exp[op]));
-						str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
-					} else {
-						const ov = exp[op];
-						str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
-					}
-				}
+		if (isAllOps) {
+			if ("$eq" in expOrOv) {
+				const ov = expOrOv["$eq"];
+				str = genEq(str, sc, logicalSets, ov, safePath);
 			}
+		} else {
+			const ov = expOrOv as OpValue;
+			str += genEq(str, sc, logicalSets, ov, safePath);
 		}
 	}
 
@@ -118,4 +91,25 @@ class SymbolCounter {
 		this.count++;
 		return `${this.prefix}${this.count}`;
 	}
+}
+
+function genEq(
+	str: string,
+	sc: SymbolCounter,
+	logicalSets: Set<unknown>,
+	ov: OpValue,
+	safePath: string,
+) {
+	const varSym = sc.inc();
+	logicalSets.add(varSym);
+
+	if (ov == null) {
+		str += `const ${varSym} = ${safePath} == ${JSON.stringify(ov)}; `;
+	} else if (typeof ov === "object") {
+		str += `const ${varSym} = JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
+	} else {
+		str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
+	}
+
+	return str;
 }
