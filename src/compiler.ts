@@ -105,8 +105,6 @@ function genEq(
 	const eqSym = sc.inc();
 	results.push(eqSym);
 
-	const safePath = getSafePath(pathParts);
-
 	const mode: Mode = ov == null ? "nor" : "or";
 	const eqResults = [];
 
@@ -115,39 +113,27 @@ function genEq(
 		const lastPart = pathParts.slice(i + 1);
 		const docSym = "d";
 		const safeFirstPart = getSafePath(firstPart);
-		const safeLastPart = getSafePath([docSym, ...lastPart]);
-
+		const safePath = getSafePath([docSym, ...lastPart]);
 		const arrSym = sc.inc();
 		eqResults.push(arrSym);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && `;
+		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
 
-		str += `${safeFirstPart}.some((${docSym}) => `;
+		const subArrResults: string[] = [];
+		const subArrSym = sc.inc();
+		subArrResults.push(subArrSym);
 
-		if (ov == null) {
-			str += `${safeLastPart}`;
-		} else if (typeof ov === "object") {
-			str += `JSON.stringify(${safeLastPart}) === ${JSON.stringify(JSON.stringify(ov))}`;
-		} else {
-			str += `${safeLastPart} === ${JSON.stringify(ov)}`;
-		}
-
-		str += `); `;
+		str += `const ${subArrSym} = `;
+		str += genCmpOv(safePath, ov);
+		str += ` return ${subArrSym}; }); `;
 	}
 
+	const safePath = getSafePath(pathParts);
 	const pathSym = sc.inc();
 	eqResults.push(pathSym);
 
 	str += `const ${pathSym} = `;
-
-	if (ov == null) {
-		str += `${safePath}; `;
-	} else if (typeof ov === "object") {
-		str += `JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
-	} else {
-		str += `${safePath} === ${JSON.stringify(ov)}; `;
-	}
-
+	str += genCmpOv(safePath, ov);
 	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
 
 	if (mode === "nor") {
@@ -155,6 +141,18 @@ function genEq(
 	}
 
 	return str;
+
+	function genCmpOv(safePath: string, ov: OpValue) {
+		let str = "";
+		if (ov == null) {
+			str += `${safePath}; `;
+		} else if (typeof ov === "object") {
+			str += `JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
+		} else {
+			str += `${safePath} === ${JSON.stringify(ov)}; `;
+		}
+		return str;
+	}
 }
 
 function getSafePath(parts: string[]): string {

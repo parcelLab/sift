@@ -173,6 +173,18 @@ describe("$eq", async () => {
 			],
 			expected: [{ foo: [{}, { bar: "baz" }] }],
 		},
+		{
+			name: "nested arrays on doc",
+			filter: { "foo.bar.baz": "qux" },
+			input: [
+				{ foo: [{ bar: [{ baz: "qux" }] }] },
+				{},
+				{ foo: "bar" },
+				{ foo: [{ bar: "baz" }] },
+			],
+			expected: [{ foo: [{ bar: [{ baz: "qux" }] }] }],
+			opts: { todo: true },
+		},
 	];
 
 	runTestCases(testCases);
@@ -207,9 +219,7 @@ function runTestCases(testCases: TestCase[]) {
 			expect(actual).toEqual(mongoExpected);
 			expect(actual).toEqual(testCase.expected);
 
-			if (testCase.siftDiff) {
-				console.log("different behavior from sift!");
-			} else {
+			if (!testCase.siftDiff) {
 				const siftResult = testCase.input.filter(sift(testCase.filter));
 				expect(siftResult).toEqual(mongoExpected);
 			}
