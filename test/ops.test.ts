@@ -1,8 +1,8 @@
-import { test } from "node:test";
+import { describe } from "vitest";
 import { TestCase } from "./util";
 import { runTestCases } from "./util";
 
-test("$eq", async (t) => {
+describe("$eq", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "simple $eq against string",
@@ -12,10 +12,10 @@ test("$eq", async (t) => {
 		},
 	];
 
-	await runTestCases(testCases, t);
+	runTestCases(testCases);
 });
 
-test("$and", async (t) => {
+describe("$and", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "implicit: multiple object paths",
@@ -33,5 +33,5 @@ test("$and", async (t) => {
 		},
 	];
 
-	await runTestCases(testCases, t);
+	runTestCases(testCases);
 });

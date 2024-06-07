@@ -1,8 +1,8 @@
-import { test } from "node:test";
+import { describe } from "vitest";
 import { TestCase } from "./util";
 import { runTestCases } from "./util";
 
-test("mongo test cases", async (t) => {
+describe("mongo test cases", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "empty filter {} should match everything",
@@ -21,5 +21,5 @@ test("mongo test cases", async (t) => {
 		},
 	];
 
-	await runTestCases(testCases, t);
+	runTestCases(testCases);
 });

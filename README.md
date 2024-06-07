@@ -76,7 +76,6 @@ foobar.singularize('phenomena')
 
 ## Contributing
 
-- To run the code for development, you'll need Node 22 for the test runner.
 - You need a local copy of MongoDB (e.g. via docker, compose file provided) configured via TEST_MONGODB_URL which defaults to `mongo://localhost:27017/test`
 
 [Contribution guidelines](CONTRIBUTING.md)

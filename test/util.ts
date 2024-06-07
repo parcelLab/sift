@@ -1,9 +1,9 @@
-import { Db, MongoClient } from "mongodb";
 import { deepStrictEqual } from "node:assert";
-import { TestContext, after, before } from "node:test";
+import { randomBytes } from "node:crypto";
+import { test } from "vitest";
 import { compile } from "../src/compiler";
 import { Query } from "../src/types";
-import { randomBytes } from "node:crypto";
+import { db } from "./mongo";
 
 export type TestCase = {
 	name: string;
@@ -15,23 +15,7 @@ export type TestCase = {
 	expected: any[];
 };
 
-let mongo: MongoClient;
-let db: Db;
-
-before(async () => {
-	const mongoUrl =
-		process.env["TEST_MONGODB_URL"] ?? "mongodb://localhost:27017";
-	mongo = new MongoClient(mongoUrl, { forceServerObjectId: true });
-	await mongo.connect();
-	db = mongo.db("test");
-});
-
-after(async () => {
-	await db.dropDatabase();
-	await mongo.close();
-});
-
-export async function runTestCases(testCases: TestCase[], t: TestContext) {
+export function runTestCases(testCases: TestCase[]) {
 	const collection = db.collection("test" + randomBytes(8).toString("hex"));
 
 	for (const testCase of testCases) {
@@ -40,7 +24,7 @@ export async function runTestCases(testCases: TestCase[], t: TestContext) {
 		if (testCase.skip) testOptions.skip = true;
 		if (testCase.only) testOptions.only = true;
 
-		await t.test(testCase.name, testOptions, async () => {
+		test(testCase.name, testOptions, async () => {
 			const filterFn = compile(testCase.filter);
 			const actual = testCase.input.filter(filterFn);
 

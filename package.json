@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:types && npm run test:unit",
-    "test:unit": "tsx --test test/*.test.ts",
-    "test:types": "tsc --noEmit"
+    "test:unit": "vitest run ./test/",
+    "test:types": "tsc --noEmit",
+    "test:watch": "vitest watch ./test/"
   },
   "repository": {
     "type": "git",
@@ -31,8 +32,8 @@
     "@types/node": "^20.14.2",
     "mongodb": "^6.7.0",
     "prettier": "^3.3.1",
-    "tsx": "^4.13.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
   },
   "engines": {
     "node": ">=18"
