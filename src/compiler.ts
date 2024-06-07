@@ -47,7 +47,12 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 		const safePath = [docSym, ...path.split(".")].join("?.");
 
-		if (typeof expOrOv !== "object") {
+		if (expOrOv == null) {
+			const varSym = sc.inc();
+			logicalSets.add(varSym);
+
+			str += `const ${varSym} = ${safePath} == null; `;
+		} else if (typeof expOrOv !== "object") {
 			/** when exp is not an object, it's an implicit $eq where the ov is exp */
 			const varSym = sc.inc();
 			logicalSets.add(varSym);
@@ -72,7 +77,9 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 					const exp = expOrOv as Exp;
 
-					if (typeof exp[op] === "object") {
+					if (exp[op] == null) {
+						str += `const ${varSym} = ${safePath} == null; `;
+					} else if (typeof exp[op] === "object") {
 						const ov = JSON.stringify(JSON.stringify(exp[op]));
 						str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
 					} else {

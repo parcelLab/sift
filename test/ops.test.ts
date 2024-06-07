@@ -74,6 +74,30 @@ describe("$eq", async () => {
 			expected: [{ foo: { bar: { baz: "qux" } } }],
 		},
 		{
+			name: "implicit $eq, object against null",
+			filter: { "foo.bar": null },
+			input: [
+				{ foo: { bar: null } },
+				{ foo: { bar: "baz" } },
+				{ foo: null },
+				{ foo: "bar" },
+				{},
+			],
+			expected: [{ foo: { bar: null } }, { foo: null }, { foo: "bar" }, {}],
+		},
+		{
+			name: "explicit $eq, object against null",
+			filter: { "foo.bar": { $eq: null } },
+			input: [
+				{ foo: { bar: null } },
+				{ foo: { bar: "baz" } },
+				{ foo: null },
+				{ foo: "bar" },
+				{},
+			],
+			expected: [{ foo: { bar: null } }, { foo: null }, { foo: "bar" }, {}],
+		},
+		{
 			name: "nested object path with arrays",
 			filter: { "foo.bar": "baz" },
 			input: [
@@ -115,6 +139,7 @@ function runTestCases(testCases: TestCase[]) {
 			const actual = testCase.input.filter(filterFn);
 			const mongoExpected = await getExpectedMongoDocs(testCase);
 
+			expect(testCase.expected).toEqual(mongoExpected);
 			expect(actual).toEqual(mongoExpected);
 			expect(actual).toEqual(testCase.expected);
 		});
