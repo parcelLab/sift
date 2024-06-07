@@ -3,9 +3,9 @@ import { Query, Filter } from "./types";
 /**
  * Terminology
  *
- * Query refers to the document that is passed to the compiler / mongodb find,
+ * Query refers to the document that is passed to the compiler / mongodb find that holds
+ *   the query conditions (can be multiple),
  *   e.g. { "fruits.type": { "$eq": "berry", "$ne": "aggregate" }, "fruits": { "$size": 3 }}
- *   and can contain multiple conditions
  *
  * Cond (conditions) refers to a single path-expression pair,
  *   e.g. { "fruits.type": { "$eq": "berry", "$ne": "aggregate" }
@@ -13,7 +13,7 @@ import { Query, Filter } from "./types";
  * Path refers to dot-separated fields,
  *   e.g. "fruits.type"
  *
- * Exp (expression) refers to the object that holds multiple operator and value pairs,
+ * Exp (expression) refers to the object that holds operator and value pairs (can be multiple),
  *   e.g. { "$eq": "berry", "$ne": "aggregate" }
  *
  * Op (operator) refers to the logical operator that is matched against the value,
@@ -33,31 +33,61 @@ interface CompilerOptions {
 	debug?: boolean;
 }
 
+const cmpOps = new Set([
+	"$eq",
+	"$gt",
+	"$gte",
+	"$in",
+	"$lt",
+	"$lte",
+	"$ne",
+	"$nin",
+]);
+
 /**
  * Compiles a mongo filter query into a filter function
  */
 export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	let str = '"use strict"; ';
 
-	const SC = new SymbolCounter();
+	const sc = new SymbolCounter();
 	const logicalSets = new Set();
 
-	for (const path in query) {
-		const pathOps = query[path];
+	for (const cond in query) {
+		const exp = query[cond];
 
-		for (const op in pathOps) {
-			if (op === "$eq") {
-				const opValue = pathOps[op];
+		if (typeof exp !== "object") {
+			/** when exp is not an object, it's an implicit $eq where the ov is exp */
+			let varSym = sc.inc();
+			logicalSets.add(varSym);
 
-				let varSym = SC.inc();
-				logicalSets.add(varSym);
+			str += `const ${varSym} = ${docSym}.${cond} === ${JSON.stringify(exp)}; `;
+		} else if (Object.keys(exp).some((k) => !cmpOps.has(k))) {
+			/**
+			 * when exp has keys that aren't ops, it's an explicit object match where
+			 * each key/value has to strictly match
+			 */
+			let varSym = sc.inc();
+			logicalSets.add(varSym);
 
-				str += `const ${varSym} = ${docSym}.${path} === ${JSON.stringify(opValue)}; `;
+			const ov = JSON.stringify(exp);
+
+			str += `const ${varSym} = JSON.stringify(${docSym}.${cond}) === ${JSON.stringify(ov)}; `;
+		} else {
+			for (const op in exp) {
+				if (op === "$eq") {
+					const ov = exp[op];
+
+					let varSym = sc.inc();
+					logicalSets.add(varSym);
+
+					str += `const ${varSym} = ${docSym}.${cond} === ${JSON.stringify(ov)}; `;
+				}
 			}
 		}
 	}
 
-	const retSym = SC.inc();
+	const retSym = sc.inc();
 
 	if (logicalSets.size > 0) {
 		str += `const ${retSym} = ${Array.from(logicalSets).join(" && ")}; `;
