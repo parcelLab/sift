@@ -1,0 +1,41 @@
+{
+  "name": "@parcellab/sift",
+  "version": "0.0.1",
+  "description": "mongodb query in javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:types && npm run test:unit",
+    "test:unit": "tsx --test test/*.ts",
+    "test:types": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parcelLab/sift.git"
+  },
+  "keywords": [
+    "mongo",
+    "sift",
+    "query",
+    "filter"
+  ],
+  "author": "Chiawei Ong <chiawei.ong@parcellab.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/parcelLab/sift/issues"
+  },
+  "homepage": "https://github.com/parcelLab/sift#readme",
+  "devDependencies": {
+    "@tsconfig/node-lts": "^20.1.3",
+    "@tsconfig/node18": "^18.2.4",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/node": "^20.14.2",
+    "mongodb": "^6.7.0",
+    "mongodb-memory-server": "^9.3.0",
+    "prettier": "^3.3.1",
+    "tsx": "^4.13.1",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -11,7 +11,6 @@ Run MongoDB queries in regular javascript.
 
 (fork of https://github.com/crcn/sift.js)
 
-
 ## Table of Contents (Optional)
 
 <!---
@@ -33,8 +32,11 @@ This fork intends to rewrite sift to a compiler like [ajv](https://github.com/aj
 - it intends to provide a verbose mode where each leaf comparison can provide a pass/fail status, and/or what the comparison function looks like
 - it intends to be tiny and fast
 - it intends to be safe, where $where function calls are constrained to the input object
+- it intends to stick to the same behavior as MongoDB query operators as possible
 
 ## Installation
+
+Supports node >= 18
 
 `npm i @parcellab/sift`
 
@@ -73,5 +75,9 @@ foobar.singularize('phenomena')
 -->
 
 ## Contributing
+
+To run the code for development, you'll need Node 22 for the test runner.
+
+Your dev platform needs to support [MongoMemoryServer](https://github.com/nodkz/mongodb-memory-server) for running the test suite.
 
 [Contribution guidelines](CONTRIBUTING.md)
