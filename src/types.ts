@@ -38,4 +38,6 @@ export type TestCase = {
 	expected: any[];
 
 	opts?: TestOptions;
+
+	siftDiff?: boolean;
 };

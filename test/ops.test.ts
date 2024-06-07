@@ -1,3 +1,4 @@
+import sift from "sift";
 import { describe, expect, test } from "vitest";
 import { compile } from "../src/compiler";
 import { TestCase } from "../src/types";
@@ -27,6 +28,7 @@ describe("$eq", async () => {
 				{ foo: { bar: 1, $size: 2 } },
 			],
 			expected: [{ foo: { bar: 1, $size: 2 } }],
+			siftDiff: true,
 		},
 		{
 			name: "explicit $eq, full object match",
@@ -72,6 +74,7 @@ describe("$eq", async () => {
 				{ foo: { bar: "baz" } },
 			],
 			expected: [{ foo: { bar: { baz: "qux", $eq: "bar" } } }],
+			siftDiff: true,
 		},
 		{
 			name: "nested object path, full object match",
@@ -204,6 +207,13 @@ function runTestCases(testCases: TestCase[]) {
 			expect(testCase.expected).toEqual(mongoExpected);
 			expect(actual).toEqual(mongoExpected);
 			expect(actual).toEqual(testCase.expected);
+
+			if (testCase.siftDiff) {
+				console.log("different behavior from sift!");
+			} else {
+				const siftResult = testCase.input.filter(sift(testCase.filter));
+				expect(siftResult).toEqual(mongoExpected);
+			}
 		});
 	}
 }
