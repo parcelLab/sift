@@ -29,7 +29,18 @@ describe("$eq", async () => {
 			expected: [{ foo: { bar: 1, $size: 2 } }],
 		},
 		{
-			name: "nested object match",
+			name: "nested object path, explicit $eq",
+			filter: { "foo.bar": { $eq: "baz" } },
+			input: [
+				{ foo: { bar: "baz" } },
+				{},
+				{ foo: "bar" },
+				{ foo: { bar: "qux" } },
+			],
+			expected: [{ foo: { bar: "baz" } }],
+		},
+		{
+			name: "nested object path, implicit $eq",
 			filter: { "foo.bar": "baz" },
 			input: [
 				{ foo: { bar: "baz" } },
@@ -38,6 +49,18 @@ describe("$eq", async () => {
 				{ foo: { bar: "qux" } },
 			],
 			expected: [{ foo: { bar: "baz" } }],
+		},
+		{
+			name: "nested object path, full object match",
+			filter: { "foo.bar": { baz: "qux" } },
+			input: [
+				{ foo: { bar: { baz: "qux" } } },
+				{ foo: { bar: { baz: "qux", bla: "jaz" } } },
+				{},
+				{ foo: "bar" },
+				{ foo: { bar: "baz" } },
+			],
+			expected: [{ foo: { bar: { baz: "qux" } } }],
 		},
 		{
 			name: "nested object match with arrays",
