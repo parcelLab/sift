@@ -45,7 +45,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	for (const path in query) {
 		const expOrOv = query[path];
 
-		const safePath = [docSym, ...path.split(".")].join("?.");
+		const pathParts = [docSym, ...path.split(".")];
 
 		/** When there are non-ops it the entire ov is used as a deep strict equal match */
 		const isAllOps =
@@ -56,11 +56,11 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ov = expOrOv["$eq"];
-				str = genEq(str, sc, logicalSets, ov, safePath);
+				str = genEq(str, sc, logicalSets, ov, pathParts);
 			}
 		} else {
 			const ov = expOrOv as OpValue;
-			str += genEq(str, sc, logicalSets, ov, safePath);
+			str = genEq(str, sc, logicalSets, ov, pathParts);
 		}
 	}
 
@@ -98,18 +98,54 @@ function genEq(
 	sc: SymbolCounter,
 	logicalSets: Set<unknown>,
 	ov: OpValue,
-	safePath: string,
+	pathParts: string[],
 ) {
-	const varSym = sc.inc();
-	logicalSets.add(varSym);
+	const eqSym = sc.inc();
+	logicalSets.add(eqSym);
+
+	const safePath = pathParts.join("?.");
+
+	const or = [];
+
+	for (let i = 1; i < pathParts.length; i++) {
+		const firstPart = pathParts.slice(0, i + 1);
+		const lastPart = pathParts.slice(i + 1);
+
+		const arrSym = sc.inc();
+		or.push(arrSym);
+
+		str += `const ${arrSym} = (Array.isArray(${firstPart.join("?.")})) && `;
+
+		const docSym = "d";
+		const safeLastPart = [docSym, ...lastPart].join("?.");
+
+		str += `${firstPart.join(".")}.some((${docSym}) => `;
+
+		if (ov == null) {
+			str += `${safeLastPart} == ${JSON.stringify(ov)}`;
+		} else if (typeof ov === "object") {
+			str += `JSON.stringify(${safeLastPart}) === ${JSON.stringify(JSON.stringify(ov))}`;
+		} else {
+			str += `${safeLastPart} === ${JSON.stringify(ov)}`;
+		}
+
+		str += `); `;
+	}
+
+	const pathSym = sc.inc();
+	or.push(pathSym);
+
+	str += `const ${pathSym} = `;
 
 	if (ov == null) {
-		str += `const ${varSym} = ${safePath} == ${JSON.stringify(ov)}; `;
+		str += `${safePath} == ${JSON.stringify(ov)}; `;
 	} else if (typeof ov === "object") {
-		str += `const ${varSym} = JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
+		str += `JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
 	} else {
-		str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
+		str += `${safePath} === ${JSON.stringify(ov)}; `;
 	}
+
+	str += `const ${eqSym} = ${or.join(" || ")}; `;
 
 	return str;
 }

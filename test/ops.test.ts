@@ -115,12 +115,13 @@ describe("$eq", async () => {
 			input: [
 				{ foo: { bar: "baz" } },
 				{ foo: { bar: ["baz"] } },
+				{ foo: { bar: [["baz"]] } },
 				{ foo: { bar: ["baz", "bar"] } },
 				{},
 				{ foo: "bar" },
 				{ foo: [{ bar: "qux" }] },
 			],
-			expected: [{ foo: { bar: ["baz"] } }],
+			expected: [{ foo: { bar: ["baz"] } }, { foo: { bar: [["baz"]] } }],
 		},
 		{
 			name: "match against arrays on doc",
@@ -133,10 +134,9 @@ describe("$eq", async () => {
 				{ foo: [{ bar: "qux" }] },
 			],
 			expected: [{ foo: { bar: ["baz", "bar"] } }],
-			opts: { todo: true },
 		},
 		{
-			name: "nested object path with intermediate arrays on doc",
+			name: "unindexed nested object path with intermediate arrays on doc",
 			filter: { "foo.bar": "baz" },
 			input: [
 				{ foo: [{ bar: "baz" }] },
@@ -145,7 +145,19 @@ describe("$eq", async () => {
 				{ foo: [{ bar: "qux" }] },
 			],
 			expected: [{ foo: [{ bar: "baz" }] }],
-			opts: { todo: true },
+		},
+		{
+			name: "indexed nested object path with intermediate arrays on doc",
+			filter: { "foo.1.bar": "baz" },
+			input: [
+				{ foo: [{}, { bar: "baz" }] },
+				{ foo: [{ bar: "baz" }, {}] },
+				{},
+				{ foo: "bar" },
+				{ foo: [{ bar: "qux" }] },
+			],
+			expected: [{ foo: [{}, { bar: "baz" }] }],
+			opts: { skip: true },
 		},
 	];
 
