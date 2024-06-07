@@ -6,19 +6,19 @@ describe("mongo test cases", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "empty filter {} should match everything",
-			filter: {},
+			query: {},
 			input: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 			expected: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 		},
 		{
 			name: "multiple explicit ops in same path",
-			filter: { foo: { $nin: ["baz"], $in: ["bar", "baz"] } },
+			query: { foo: { $nin: ["baz"], $in: ["bar", "baz"] } },
 			input: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 			expected: [{ foo: "bar" }],
 		},
 		{
 			name: "mixed implicit and explicit ops in same path is a strict object match",
-			filter: { foo: { bar: 1, $size: 2 } },
+			query: { foo: { bar: 1, $size: 2 } },
 			input: [
 				{ foo: "bar" },
 				{},

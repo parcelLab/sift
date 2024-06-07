@@ -8,19 +8,19 @@ describe("$eq", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "explicit $eq",
-			filter: { foo: { $eq: "bar" } },
+			query: { foo: { $eq: "bar" } },
 			input: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 			expected: [{ foo: "bar" }],
 		},
 		{
 			name: "implicit $eq",
-			filter: { foo: "bar" },
+			query: { foo: "bar" },
 			input: [{ foo: "bar" }, {}, { foo: "baz" }, { foo: { foo: "bar" } }],
 			expected: [{ foo: "bar" }],
 		},
 		{
 			name: "implicit $eq, full object match",
-			filter: { foo: { bar: 1, $size: 2 } },
+			query: { foo: { bar: 1, $size: 2 } },
 			input: [
 				{ foo: "bar" },
 				{},
@@ -32,7 +32,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "explicit $eq, full object match",
-			filter: { foo: { $eq: { bar: 1, $size: 2 } } },
+			query: { foo: { $eq: { bar: 1, $size: 2 } } },
 			input: [
 				{ foo: "bar" },
 				{},
@@ -43,7 +43,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested object path, explicit $eq",
-			filter: { "foo.bar": { $eq: "baz" } },
+			query: { "foo.bar": { $eq: "baz" } },
 			input: [
 				{ foo: { bar: "baz" } },
 				{},
@@ -54,7 +54,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested object path, implicit $eq",
-			filter: { "foo.bar": "baz" },
+			query: { "foo.bar": "baz" },
 			input: [
 				{ foo: { bar: "baz" } },
 				{},
@@ -65,7 +65,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested object path, full object match",
-			filter: { "foo.bar": { baz: "qux", $eq: "bar" } },
+			query: { "foo.bar": { baz: "qux", $eq: "bar" } },
 			input: [
 				{ foo: { bar: { baz: "qux", $eq: "bar" } } },
 				{ foo: { bar: { baz: "qux", bla: "jaz" } } },
@@ -78,7 +78,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested object path, full object match",
-			filter: { "foo.bar": { baz: "qux" } },
+			query: { "foo.bar": { baz: "qux" } },
 			input: [
 				{ foo: { bar: { baz: "qux" } } },
 				{ foo: { bar: { baz: "qux", bla: "jaz" } } },
@@ -90,7 +90,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "implicit $eq, object against null",
-			filter: { "foo.bar": null },
+			query: { "foo.bar": null },
 			input: [
 				{ foo: { bar: null } },
 				{ foo: { bar: "baz" } },
@@ -102,7 +102,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "explicit $eq, object against null",
-			filter: { "foo.bar": { $eq: null } },
+			query: { "foo.bar": { $eq: null } },
 			input: [
 				{ foo: { bar: null } },
 				{ foo: { bar: "baz" } },
@@ -114,7 +114,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "match against arrays on ov",
-			filter: { "foo.bar": ["baz"] },
+			query: { "foo.bar": ["baz"] },
 			input: [
 				{ foo: { bar: "baz" } },
 				{ foo: { bar: ["baz"] } },
@@ -128,7 +128,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "match against arrays on doc",
-			filter: { "foo.bar": "baz" },
+			query: { "foo.bar": "baz" },
 			input: [
 				{ foo: { bar: ["bar"] } },
 				{ foo: { bar: ["baz", "bar"] } },
@@ -140,7 +140,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "unindexed nested object path with intermediate arrays on doc",
-			filter: { "foo.bar": "baz" },
+			query: { "foo.bar": "baz" },
 			input: [
 				{ foo: [{ bar: "baz" }] },
 				{},
@@ -151,7 +151,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "unindexed nested object path against null",
-			filter: { "foo.bar": null },
+			query: { "foo.bar": null },
 			input: [
 				{ foo: [{ bar: "baz" }] },
 				{},
@@ -163,7 +163,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "indexed nested object path with intermediate arrays on doc",
-			filter: { "foo.1.bar": "baz" },
+			query: { "foo.1.bar": "baz" },
 			input: [
 				{ foo: [{}, { bar: "baz" }] },
 				{ foo: [{ bar: "baz" }, {}] },
@@ -175,7 +175,7 @@ describe("$eq", async () => {
 		},
 		{
 			name: "nested arrays on doc",
-			filter: { "foo.bar.baz": "qux" },
+			query: { "foo.bar.baz": "qux" },
 			input: [
 				{ foo: [{ bar: [{ baz: "qux" }] }] },
 				{},
@@ -193,7 +193,7 @@ describe("$and", async () => {
 	const testCases: TestCase[] = [
 		{
 			name: "implicit: multiple object paths",
-			filter: { foo: { $eq: "bar" }, qux: { $eq: "baz" } },
+			query: { foo: { $eq: "bar" }, qux: { $eq: "baz" } },
 			input: [{ foo: "bar", qux: "baz" }, { foo: "bar" }, {}, { foo: "baz" }],
 			expected: [{ foo: "bar", qux: "baz" }],
 		},
@@ -207,10 +207,10 @@ function runTestCases(testCases: TestCase[]) {
 		test(testCase.name, testCase.opts, async (c) => {
 			c.onTestFailed(() => {
 				console.log("DEBUG:", c.task.name);
-				compile(testCase.filter, { debug: true });
+				compile(testCase.query, { debug: true });
 			});
 
-			const filterFn = compile(testCase.filter);
+			const filterFn = compile(testCase.query);
 			const actual = testCase.input.filter(filterFn);
 			const mongoExpected = await getExpectedMongoDocs(testCase);
 
@@ -219,7 +219,7 @@ function runTestCases(testCases: TestCase[]) {
 			expect(actual).toEqual(testCase.expected);
 
 			if (!testCase.siftDiff) {
-				const siftResult = testCase.input.filter(sift(testCase.filter));
+				const siftResult = testCase.input.filter(sift(testCase.query));
 				expect(siftResult).toEqual(mongoExpected);
 			}
 		});

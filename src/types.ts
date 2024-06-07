@@ -33,7 +33,7 @@ export type Filter = (value: unknown) => boolean;
 
 export type TestCase = {
 	name: string;
-	filter: Query;
+	query: Query;
 	input: any[];
 	expected: any[];
 

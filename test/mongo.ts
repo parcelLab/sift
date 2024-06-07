@@ -9,7 +9,7 @@ export async function getExpectedMongoDocs(testCase: TestCase) {
 	const collection = db.collection("test" + randomBytes(12).toString("hex"));
 	await collection.insertMany(testCase.input);
 	const mongoExpected = await collection
-		.find(testCase.filter, { projection: { _id: 0 } })
+		.find(testCase.query, { projection: { _id: 0 } })
 		.toArray();
 	return mongoExpected;
 }

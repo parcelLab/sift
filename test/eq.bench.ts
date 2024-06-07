@@ -50,6 +50,26 @@ const benchmarkCases = [
 			{},
 		],
 	},
+	{
+		name: "array access",
+		query: { "foo.bar": "baz" },
+		input: [
+			{ foo: [{ bar: "baz" }] },
+			{},
+			{ foo: "bar" },
+			{ foo: [{ bar: "qux" }] },
+		],
+	},
+	{
+		name: "nested array access",
+		query: { "foo.bar.baz": "qux" },
+		input: [
+			{ foo: [{ bar: [{ baz: "qux" }] }] },
+			{},
+			{ foo: "bar" },
+			{ foo: [{ bar: "baz" }] },
+		],
+	},
 ];
 
 describe.each(benchmarkScenarios)("benchmark $time ms", (options) => {
