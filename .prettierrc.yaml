@@ -1,12 +1,11 @@
-tabWidth: 4
+tabWidth: 2
 endOfLine: lf
 useTabs: true
 overrides:
-    - files:
-          - "*.json"
-          - "*.md"
-          - "*.yaml"
-          - "*.yml"
-      options:
-          tabWidth: 2
-          useTabs: false
+  - files:
+      - "*.json"
+      - "*.md"
+      - "*.yaml"
+      - "*.yml"
+    options:
+      useTabs: false
