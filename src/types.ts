@@ -9,14 +9,3 @@ export type Query = {
 };
 
 export type Filter = (value: unknown) => boolean;
-
-export type TestCase = {
-	name: string;
-	skip?: true;
-	filter: Query;
-	input: any[];
-	expected: any[];
-} | {
-	name: string;
-	todo: true;
-};

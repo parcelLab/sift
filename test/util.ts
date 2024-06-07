@@ -1,42 +1,46 @@
-import { Collection, MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import { deepStrictEqual } from "node:assert";
-import { TestContext, after, before, beforeEach } from "node:test";
+import { TestContext, after, before } from "node:test";
 import { compile } from "../src/compiler";
-import { TestCase } from "../src/types";
+import { Query } from "../src/types";
+import { randomBytes } from "node:crypto";
+
+export type TestCase = {
+	name: string;
+	skip?: true;
+	only?: true;
+	todo?: true;
+	filter: Query;
+	input: any[];
+	expected: any[];
+};
 
 let mongo: MongoClient;
-export let collection: Collection;
+let db: Db;
 
 before(async () => {
 	const mongoUrl =
 		process.env["TEST_MONGODB_URL"] ?? "mongodb://localhost:27017";
 	mongo = new MongoClient(mongoUrl, { forceServerObjectId: true });
 	await mongo.connect();
-	const db = mongo.db("test");
-	collection = db.collection("test");
+	db = mongo.db("test");
 });
 
 after(async () => {
+	await db.dropDatabase();
 	await mongo.close();
 });
 
-beforeEach(async () => {
-	await collection.deleteMany();
-});
-
 export async function runTestCases(testCases: TestCase[], t: TestContext) {
+	const collection = db.collection("test" + randomBytes(8).toString("hex"));
+
 	for (const testCase of testCases) {
-		if ("todo" in testCase) {
-			t.todo(testCase.name);
-			continue;
-		}
+		const testOptions: any = {};
+		if (testCase.todo) testOptions.todo = true;
+		if (testCase.skip) testOptions.skip = true;
+		if (testCase.only) testOptions.only = true;
 
-		if ("skip" in testCase) {
-			t.skip(testCase.name);
-			continue;
-		}
-
-		await t.test(testCase.name, async () => {
+		await t.test(testCase.name, testOptions, async () => {
 			const filterFn = compile(testCase.filter);
 			const actual = testCase.input.filter(filterFn);
 
