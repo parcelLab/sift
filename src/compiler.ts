@@ -1,23 +1,23 @@
-import { Query, Filter } from './types';
+import { Query, Filter } from "./types";
 
-const kDocVar = 'doc';
+const kDocVar = "doc";
 
 export function compile(query: Query): Filter {
-  let str = '';
+	let str = "";
 
-  for (const path in query) {
-    const pathOps = query[path];
+	for (const path in query) {
+		const pathOps = query[path];
 
-    for (const op in pathOps) {
-      if (op === '$eq') {
-        const opValue = pathOps[op];
+		for (const op in pathOps) {
+			if (op === "$eq") {
+				const opValue = pathOps[op];
 
-        str += `if (${kDocVar}.${path} === ${JSON.stringify(opValue)}) { return true }`;
-      }
-    }
-  }
+				str += `if (${kDocVar}.${path} === ${JSON.stringify(opValue)}) { return true }`;
+			}
+		}
+	}
 
-  str += `return false`;
+	str += `return false`;
 
-  return new Function(kDocVar, str) as Filter;
+	return new Function(kDocVar, str) as Filter;
 }
