@@ -183,7 +183,6 @@ describe("$eq", async () => {
 				{ foo: [{ bar: "baz" }] },
 			],
 			expected: [{ foo: [{ bar: [{ baz: "qux" }] }] }],
-			opts: { todo: true },
 		},
 	];
 
