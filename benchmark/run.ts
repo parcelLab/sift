@@ -6,7 +6,7 @@ import { TestCase } from "../src/types";
 
 type BenchCase = Pick<TestCase, "name" | "query" | "input" | "siftDiff">;
 
-const RUNS_PER_CASE = 100;
+const RUNS_PER_CASE = 10_000;
 
 const cases: BenchCase[] = [
 	{
