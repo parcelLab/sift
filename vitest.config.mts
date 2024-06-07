@@ -6,8 +6,5 @@ export default defineConfig({
 		typecheck: {
 			enabled: true,
 		},
-		benchmark: {
-			outputJson: "test/bench.json",
-		},
 	},
 });

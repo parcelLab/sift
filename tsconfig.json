@@ -1,5 +1,5 @@
 {
-  "include": ["src/*.ts", "test/*.ts"],
+  "include": ["src/*.ts", "test/*.ts", "benchmark/*.ts"],
   "extends": [
     "@tsconfig/strictest/tsconfig.json",
     "@tsconfig/node18/tsconfig.json"
