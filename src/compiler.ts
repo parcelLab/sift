@@ -53,15 +53,17 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	const sc = new SymbolCounter();
 	const logicalSets = new Set();
 
-	for (const cond in query) {
-		const exp = query[cond];
+	for (const path in query) {
+		const exp = query[path];
+
+		let safePath = [docSym, ...path.split(".")].join("?.");
 
 		if (typeof exp !== "object") {
 			/** when exp is not an object, it's an implicit $eq where the ov is exp */
 			let varSym = sc.inc();
 			logicalSets.add(varSym);
 
-			str += `const ${varSym} = ${docSym}.${cond} === ${JSON.stringify(exp)}; `;
+			str += `const ${varSym} = ${safePath} === ${JSON.stringify(exp)}; `;
 		} else if (Object.keys(exp).some((k) => !cmpOps.has(k))) {
 			/**
 			 * when exp has keys that aren't ops, it's an explicit object match where
@@ -72,7 +74,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 			const ov = JSON.stringify(exp);
 
-			str += `const ${varSym} = JSON.stringify(${docSym}.${cond}) === ${JSON.stringify(ov)}; `;
+			str += `const ${varSym} = JSON.stringify(${safePath}) === ${JSON.stringify(ov)}; `;
 		} else {
 			for (const op in exp) {
 				if (op === "$eq") {
@@ -81,7 +83,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 					let varSym = sc.inc();
 					logicalSets.add(varSym);
 
-					str += `const ${varSym} = ${docSym}.${cond} === ${JSON.stringify(ov)}; `;
+					str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
 				}
 			}
 		}

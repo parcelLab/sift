@@ -1,8 +1,7 @@
-import { randomBytes } from "node:crypto";
 import { describe, expect, test } from "vitest";
 import { compile } from "../src/compiler";
 import { TestCase } from "../src/types";
-import { db, getExpectedMongoDocs } from "./mongo";
+import { getExpectedMongoDocs } from "./mongo";
 
 describe("$eq", async () => {
 	const testCases: TestCase[] = [
@@ -28,6 +27,24 @@ describe("$eq", async () => {
 				{ foo: { bar: 1, $size: 2 } },
 			],
 			expected: [{ foo: { bar: 1, $size: 2 } }],
+		},
+		{
+			name: "nested object match",
+			filter: { "foo.bar": "baz" },
+			input: [
+				{ foo: { bar: "baz" } },
+				{},
+				{ foo: "bar" },
+				{ foo: { bar: "qux" } },
+			],
+			expected: [{ foo: { bar: "baz" } }],
+		},
+		{
+			name: "nested object match with arrays",
+			filter: { "foo.bar": "baz" },
+			input: [{}],
+			expected: [{}],
+			opts: { todo: true },
 		},
 	];
 
