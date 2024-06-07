@@ -1,13 +1,12 @@
-import { test } from "vitest";
-import { strictEqual } from "node:assert";
+import { expectTypeOf, test } from "vitest";
 import { compile } from "../src/compiler";
 
 test("compile returns function that takes a value and returns a boolean", () => {
 	const filter = compile({});
 
-	strictEqual(typeof filter, "function");
+	expectTypeOf(filter).toBeFunction();
 
 	const output = filter({});
 
-	strictEqual(typeof output, "boolean");
+	expectTypeOf(output).toBeBoolean();
 });

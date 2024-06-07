@@ -1,6 +1,5 @@
-import { deepStrictEqual } from "node:assert";
 import { randomBytes } from "node:crypto";
-import { TestOptions, test } from "vitest";
+import { TestOptions, test, expect } from "vitest";
 import { compile } from "../src/compiler";
 import { Query } from "../src/types";
 import { db } from "./mongo";
@@ -33,8 +32,8 @@ export function runTestCases(testCases: TestCase[]) {
 				.find(testCase.filter, { projection: { _id: 0 } })
 				.toArray();
 
-			deepStrictEqual(actual, mongoExpected, "Failed mongo comparison");
-			deepStrictEqual(actual, testCase.expected, "Failed expected comparison");
+			expect(actual).toEqual(mongoExpected);
+			expect(actual).toEqual(testCase.expected);
 		});
 	}
 }
