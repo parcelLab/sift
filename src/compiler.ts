@@ -40,7 +40,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	let str = '"use strict"; ';
 
 	const sc = new SymbolCounter();
-	const logicalSets = new Set();
+	const results: string[] = [];
 
 	for (const path in query) {
 		const expOrOv = query[path];
@@ -56,18 +56,18 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ov = expOrOv["$eq"];
-				str = genEq(str, sc, logicalSets, ov, pathParts);
+				str = genEq(str, sc, results, ov, pathParts);
 			}
 		} else {
 			const ov = expOrOv as OpValue;
-			str = genEq(str, sc, logicalSets, ov, pathParts);
+			str = genEq(str, sc, results, ov, pathParts);
 		}
 	}
 
 	const retSym = sc.inc();
 
-	if (logicalSets.size > 0) {
-		str += `const ${retSym} = ${Array.from(logicalSets).join(" && ")}; `;
+	if (results.length > 0) {
+		str += `const ${retSym} = ${results.join(" && ")}; `;
 	} else {
 		str += `const ${retSym} = true; `;
 	}
@@ -93,26 +93,29 @@ class SymbolCounter {
 	}
 }
 
+type Mode = "and" | "or" | "nor";
+
 function genEq(
 	str: string,
 	sc: SymbolCounter,
-	logicalSets: Set<unknown>,
+	results: string[],
 	ov: OpValue,
 	pathParts: string[],
 ) {
 	const eqSym = sc.inc();
-	logicalSets.add(eqSym);
+	results.push(eqSym);
 
 	const safePath = pathParts.join("?.");
 
-	const or = [];
+	const mode: Mode = ov == null ? "nor" : "or";
+	const eqResults = [];
 
 	for (let i = 1; i < pathParts.length; i++) {
 		const firstPart = pathParts.slice(0, i + 1);
 		const lastPart = pathParts.slice(i + 1);
 
 		const arrSym = sc.inc();
-		or.push(arrSym);
+		eqResults.push(arrSym);
 
 		str += `const ${arrSym} = (Array.isArray(${firstPart.join("?.")})) && `;
 
@@ -122,7 +125,7 @@ function genEq(
 		str += `${firstPart.join(".")}.some((${docSym}) => `;
 
 		if (ov == null) {
-			str += `${safeLastPart} == ${JSON.stringify(ov)}`;
+			str += `${safeLastPart}`;
 		} else if (typeof ov === "object") {
 			str += `JSON.stringify(${safeLastPart}) === ${JSON.stringify(JSON.stringify(ov))}`;
 		} else {
@@ -133,19 +136,23 @@ function genEq(
 	}
 
 	const pathSym = sc.inc();
-	or.push(pathSym);
+	eqResults.push(pathSym);
 
 	str += `const ${pathSym} = `;
 
 	if (ov == null) {
-		str += `${safePath} == ${JSON.stringify(ov)}; `;
+		str += `${safePath}; `;
 	} else if (typeof ov === "object") {
 		str += `JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
 	} else {
 		str += `${safePath} === ${JSON.stringify(ov)}; `;
 	}
 
-	str += `const ${eqSym} = ${or.join(" || ")}; `;
+	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
+
+	if (mode === "nor") {
+		str += `${eqSym} = !${eqSym}; `;
+	}
 
 	return str;
 }

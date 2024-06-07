@@ -147,6 +147,18 @@ describe("$eq", async () => {
 			expected: [{ foo: [{ bar: "baz" }] }],
 		},
 		{
+			name: "unindexed nested object path against null",
+			filter: { "foo.bar": null },
+			input: [
+				{ foo: [{ bar: "baz" }] },
+				{},
+				{ foo: "bar" },
+				{ foo: { bar: null } },
+				{ foo: [{ bar: "qux" }] },
+			],
+			expected: [{}, { foo: "bar" }, { foo: { bar: null } }],
+		},
+		{
 			name: "indexed nested object path with intermediate arrays on doc",
 			filter: { "foo.1.bar": "baz" },
 			input: [
