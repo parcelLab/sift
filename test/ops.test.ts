@@ -25,7 +25,6 @@ describe("$and", async () => {
 		},
 		{
 			name: "multiple operators on the same path",
-			skip: true,
 			todo: true,
 			filter: {},
 			input: [{}],

@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "node:assert";
 import { randomBytes } from "node:crypto";
-import { test } from "vitest";
+import { TestOptions, test } from "vitest";
 import { compile } from "../src/compiler";
 import { Query } from "../src/types";
 import { db } from "./mongo";
@@ -19,7 +19,7 @@ export function runTestCases(testCases: TestCase[]) {
 	const collection = db.collection("test" + randomBytes(8).toString("hex"));
 
 	for (const testCase of testCases) {
-		const testOptions: any = {};
+		const testOptions: TestOptions = {};
 		if (testCase.todo) testOptions.todo = true;
 		if (testCase.skip) testOptions.skip = true;
 		if (testCase.only) testOptions.only = true;

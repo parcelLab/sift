@@ -4,10 +4,8 @@
   "description": "mongodb query in javascript",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test:types && npm run test:unit",
-    "test:unit": "vitest run ./test/",
-    "test:types": "tsc --noEmit",
-    "test:watch": "vitest watch ./test/"
+    "test": "vitest run",
+    "test:watch": "vitest watch"
   },
   "repository": {
     "type": "git",
