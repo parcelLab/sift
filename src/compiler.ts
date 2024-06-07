@@ -1,4 +1,4 @@
-import { Query, Filter } from "./types";
+import { Exp, Filter, OpValue, Query, cmpOps } from "./types";
 
 /**
  * Terminology
@@ -33,17 +33,6 @@ interface CompilerOptions {
 	debug?: boolean;
 }
 
-const cmpOps = new Set([
-	"$eq",
-	"$gt",
-	"$gte",
-	"$in",
-	"$lt",
-	"$lte",
-	"$ne",
-	"$nin",
-]);
-
 /**
  * Compiles a mongo filter query into a filter function
  */
@@ -54,17 +43,18 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	const logicalSets = new Set();
 
 	for (const path in query) {
-		const exp = query[path];
+		const expOrOv = query[path];
 
 		const safePath = [docSym, ...path.split(".")].join("?.");
 
-		if (typeof exp !== "object") {
+		if (typeof expOrOv !== "object") {
 			/** when exp is not an object, it's an implicit $eq where the ov is exp */
 			const varSym = sc.inc();
 			logicalSets.add(varSym);
 
-			str += `const ${varSym} = ${safePath} === ${JSON.stringify(exp)}; `;
-		} else if (Object.keys(exp).some((k) => !cmpOps.has(k))) {
+			const ov: OpValue = expOrOv;
+			str += `const ${varSym} = ${safePath} === ${JSON.stringify(ov)}; `;
+		} else if (Object.keys(expOrOv).some((k) => !cmpOps.has(k))) {
 			/**
 			 * when exp has keys that aren't ops, it's an explicit object match where
 			 * each key/value has to strictly match
@@ -72,13 +62,15 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 			const varSym = sc.inc();
 			logicalSets.add(varSym);
 
-			const ov = JSON.stringify(JSON.stringify(exp));
+			const ov = JSON.stringify(JSON.stringify(expOrOv));
 			str += `const ${varSym} = JSON.stringify(${safePath}) === ${ov}; `;
 		} else {
-			for (const op in exp) {
+			for (const op in expOrOv) {
 				if (op === "$eq") {
 					const varSym = sc.inc();
 					logicalSets.add(varSym);
+
+					const exp = expOrOv as Exp;
 
 					if (typeof exp[op] === "object") {
 						const ov = JSON.stringify(JSON.stringify(exp[op]));

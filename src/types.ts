@@ -1,15 +1,32 @@
 import { TestOptions } from "vitest";
 
-type CmpOp = "$eq";
+export type CmpOp =
+	| "$eq"
+	| "$gt"
+	| "$gte"
+	| "$in"
+	| "$lt"
+	| "$lte"
+	| "$ne"
+	| "$nin";
 
-type OpValue = any;
+export const cmpOps = new Set([
+	"$eq",
+	"$gt",
+	"$gte",
+	"$in",
+	"$lt",
+	"$lte",
+	"$ne",
+	"$nin",
+]);
+
+export type OpValue = any; // string | number | object | array | null | undefined;
+
+export type Exp = { [op in CmpOp]: OpValue };
 
 export type Query = {
-	[path: string]:
-		| {
-				[op in CmpOp]: OpValue;
-		  }
-		| OpValue;
+	[path: string]: Exp | OpValue;
 };
 
 export type Filter = (value: unknown) => boolean;
