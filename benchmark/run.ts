@@ -183,20 +183,39 @@ function runBench(cases: BenchCase[]) {
 		.filter((c) => !c.siftDiff)
 		.flatMap((c) => {
 			const siftHistogram = createHistogram();
+			const siftCompileHistogram = createHistogram();
+			const siftRunHistogram = createHistogram();
 			const compiledHistogram = createHistogram();
+			const compileStepHistogram = createHistogram();
+			const compileRunHistogram = createHistogram();
 
-			const runSift = performance.timerify(
+			const siftFull = performance.timerify(
 				() => c.input.filter(sift(c.query)),
-				{
-					histogram: siftHistogram,
-				},
+				{ histogram: siftHistogram },
 			);
 
-			const runCompiled = performance.timerify(
+			const siftCompile = performance.timerify(() => sift(c.query), {
+				histogram: siftCompileHistogram,
+			});
+
+			const siftFilter = sift(c.query);
+			const siftRun = performance.timerify(() => c.input.filter(siftFilter), {
+				histogram: siftRunHistogram,
+			});
+
+			const compileFull = performance.timerify(
 				() => c.input.filter(compile(c.query)),
-				{
-					histogram: compiledHistogram,
-				},
+				{ histogram: compiledHistogram },
+			);
+
+			const compileStep = performance.timerify(() => compile(c.query), {
+				histogram: compileStepHistogram,
+			});
+
+			const compileFilter = compile(c.query);
+			const compileRun = performance.timerify(
+				() => c.input.filter(compileFilter),
+				{ histogram: compileRunHistogram },
 			);
 
 			return [
@@ -204,13 +223,37 @@ function runBench(cases: BenchCase[]) {
 					name: c.name,
 					version: "sift",
 					histogram: siftHistogram,
-					run: runSift,
+					run: siftFull,
+				},
+				{
+					name: c.name,
+					version: "sift (compile step)",
+					histogram: siftCompileHistogram,
+					run: siftCompile,
+				},
+				{
+					name: c.name,
+					version: "sift (run step)",
+					histogram: siftRunHistogram,
+					run: siftRun,
 				},
 				{
 					name: c.name,
 					version: "compiled",
 					histogram: compiledHistogram,
-					run: runCompiled,
+					run: compileFull,
+				},
+				{
+					name: c.name,
+					version: "compiled (compile step)",
+					histogram: compileStepHistogram,
+					run: compileStep,
+				},
+				{
+					name: c.name,
+					version: "compiled (run step)",
+					histogram: compileRunHistogram,
+					run: compileRun,
 				},
 			];
 		});
@@ -229,9 +272,13 @@ function runBench(cases: BenchCase[]) {
 
 	console.log("Benchmark results:");
 
-	for (let i = 0; i < benchmarkCases.length; i += 2) {
+	for (let i = 0; i < benchmarkCases.length; i += 6) {
 		const sift = benchmarkCases[i]!;
-		const compiled = benchmarkCases[i + 1]!;
+		const siftCompile = benchmarkCases[i + 1]!;
+		const siftRun = benchmarkCases[i + 2]!;
+		const compiled = benchmarkCases[i + 3]!;
+		const compiledCompile = benchmarkCases[i + 4]!;
+		const compiledRun = benchmarkCases[i + 5]!;
 
 		const { name, histogram: siftHistogram } = sift;
 		const { histogram: compiledHistogram } = compiled;
@@ -262,6 +309,12 @@ function runBench(cases: BenchCase[]) {
 		);
 		console.log(
 			`p99: sift=${siftHistogram.percentile(99)}ns, compiled=${compiledHistogram.percentile(99)}ns`,
+		);
+		console.log(
+			`com: sift=${siftCompile.histogram.mean.toFixed(0)}ns, compiled=${compiledCompile.histogram.mean.toFixed(0)}ns`,
+		);
+		console.log(
+			`run: sift=${siftRun.histogram.mean.toFixed(0)}ns, compiled=${compiledRun.histogram.mean.toFixed(0)}ns`,
 		);
 		console.groupEnd();
 		console.log();
