@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:bench": "tsx benchmark/run.ts > benchmark/output.txt"
+    "test:bench": "tsx benchmark/run.ts > benchmark/output.txt",
+    "test:bench:csv": "tsx benchmark/run.ts --csv > benchmark/output.csv"
   },
   "repository": {
     "type": "git",

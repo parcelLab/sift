@@ -4,10 +4,10 @@ import sift from "sift";
 import { compile } from "../src/compiler";
 import { TestCase } from "../src/types";
 
-type BenchCase = Pick<TestCase, "name" | "query" | "input" | "siftDiff">;
-
+const CSV = process.argv.includes("--csv");
 const RUNS_PER_CASE = 10_000;
 
+type BenchCase = Pick<TestCase, "name" | "query" | "input" | "siftDiff">;
 const cases: BenchCase[] = [
 	{
 		name: "explicit $eq",
@@ -270,7 +270,11 @@ function runBench(cases: BenchCase[]) {
 		next.run();
 	}
 
-	console.log("Benchmark results:");
+	if (CSV) {
+		console.log(
+			",sift,sift(compile),sift(run),compiled,compiled(compile),compiled(run)",
+		);
+	}
 
 	for (let i = 0; i < benchmarkCases.length; i += 6) {
 		const sift = benchmarkCases[i]!;
@@ -280,44 +284,54 @@ function runBench(cases: BenchCase[]) {
 		const compiledCompile = benchmarkCases[i + 4]!;
 		const compiledRun = benchmarkCases[i + 5]!;
 
-		const { name, histogram: siftHistogram } = sift;
-		const { histogram: compiledHistogram } = compiled;
+		if (CSV) {
+			console.log(
+				`"${sift.name}",${sift.histogram.mean},${siftCompile.histogram.mean},${siftRun.histogram.mean},,,`,
+			);
+			console.log(
+				`,,,,${compiled.histogram.mean},${compiledCompile.histogram.mean},${compiledRun.histogram.mean}`,
+			);
+			console.log("");
+		} else {
+			const { name, histogram: siftHistogram } = sift;
+			const { histogram: compiledHistogram } = compiled;
 
-		const siftMean = siftHistogram.mean;
-		const compiledMean = compiledHistogram.mean;
+			const siftMean = siftHistogram.mean;
+			const compiledMean = compiledHistogram.mean;
 
-		const faster = siftMean < compiledMean ? "sift" : "compiled";
-		const fasterBy =
-			faster === "sift" ? compiledMean / siftMean : siftMean / compiledMean;
+			const faster = siftMean < compiledMean ? "sift" : "compiled";
+			const fasterBy =
+				faster === "sift" ? compiledMean / siftMean : siftMean / compiledMean;
 
-		console.log(`${name}: ${faster} was faster by ${fasterBy}x`);
-		console.group();
-		console.log(
-			`n:   sift=${siftHistogram.count}, compiled=${compiledHistogram.count}`,
-		);
-		console.log(
-			`m:   sift=${siftMean.toFixed(0)}ns, compiled=${compiledMean.toFixed(0)}ns`,
-		);
-		console.log(
-			`sd:  sift=${siftHistogram.stddev.toFixed(0)}ns, compiled=${compiledHistogram.stddev.toFixed(0)}ns`,
-		);
-		console.log(
-			`p50: sift=${siftHistogram.percentile(50)}ns, compiled=${compiledHistogram.percentile(50)}ns`,
-		);
-		console.log(
-			`p95: sift=${siftHistogram.percentile(95)}ns, compiled=${compiledHistogram.percentile(95)}ns`,
-		);
-		console.log(
-			`p99: sift=${siftHistogram.percentile(99)}ns, compiled=${compiledHistogram.percentile(99)}ns`,
-		);
-		console.log(
-			`com: sift=${siftCompile.histogram.mean.toFixed(0)}ns, compiled=${compiledCompile.histogram.mean.toFixed(0)}ns`,
-		);
-		console.log(
-			`run: sift=${siftRun.histogram.mean.toFixed(0)}ns, compiled=${compiledRun.histogram.mean.toFixed(0)}ns`,
-		);
-		console.groupEnd();
-		console.log();
+			console.log(`${name}: ${faster} was faster by ${fasterBy}x`);
+			console.group();
+			console.log(
+				`n:   sift=${siftHistogram.count}, compiled=${compiledHistogram.count}`,
+			);
+			console.log(
+				`m:   sift=${siftMean.toFixed(0)}ns, compiled=${compiledMean.toFixed(0)}ns`,
+			);
+			console.log(
+				`sd:  sift=${siftHistogram.stddev.toFixed(0)}ns, compiled=${compiledHistogram.stddev.toFixed(0)}ns`,
+			);
+			console.log(
+				`p50: sift=${siftHistogram.percentile(50)}ns, compiled=${compiledHistogram.percentile(50)}ns`,
+			);
+			console.log(
+				`p95: sift=${siftHistogram.percentile(95)}ns, compiled=${compiledHistogram.percentile(95)}ns`,
+			);
+			console.log(
+				`p99: sift=${siftHistogram.percentile(99)}ns, compiled=${compiledHistogram.percentile(99)}ns`,
+			);
+			console.log(
+				`com: sift=${siftCompile.histogram.mean.toFixed(0)}ns, compiled=${compiledCompile.histogram.mean.toFixed(0)}ns`,
+			);
+			console.log(
+				`run: sift=${siftRun.histogram.mean.toFixed(0)}ns, compiled=${compiledRun.histogram.mean.toFixed(0)}ns`,
+			);
+			console.groupEnd();
+			console.log();
+		}
 	}
 }
 

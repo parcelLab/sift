@@ -78,4 +78,11 @@ foobar.singularize('phenomena')
 
 - You need a local copy of MongoDB (e.g. via docker, compose file provided) configured via TEST_MONGODB_URL which defaults to `mongo://localhost:27017/test`
 
+- To update the benchmarks:
+  1. run `npm run test:bench` which will update the human readable `output.txt`
+  2. run `npm run test:bench:csv`
+  3. open `output.xlsx` in Microsoft Excel
+  4. click on Refresh Data Sources (this imports `output.csv` automatically)
+  5. export the updated chart as `output.png`
+
 [Contribution guidelines](CONTRIBUTING.md)
