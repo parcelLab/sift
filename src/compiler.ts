@@ -67,7 +67,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	const retSym = sc.inc();
 
 	if (results.length > 0) {
-		str += `const ${retSym} = ${results.join(" && ")}; `;
+		str += `const ${retSym} = ${results.map((s) => `${s}()`).join(" && ")}; `;
 	} else {
 		str += `const ${retSym} = true; `;
 	}
@@ -109,6 +109,11 @@ function genEq(
 	const mode: Mode = ov == null ? "nor" : "or";
 	const eqResults = [];
 
+	const safePath = getSafePath(pathParts);
+	const pathSym = sc.inc();
+	eqResults.push(pathSym);
+	str += `const ${pathSym} = () => ` + genCompareOv(safePath, ov);
+
 	for (let i = 1; i < pathParts.length; i++) {
 		const firstPart = pathParts.slice(0, i + 1);
 		const lastPart = pathParts.slice(i + 1);
@@ -118,32 +123,21 @@ function genEq(
 		const arrSym = sc.inc();
 		eqResults.push(arrSym);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
+		str += `const ${arrSym} = () => (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
 
 		const subArrResults: string[] = [];
 		const subArrSym = sc.inc();
 		subArrResults.push(subArrSym);
 
-		str += `const ${subArrSym} = `;
-		str += genCompareOv(safePath, ov);
+		str += `const ${subArrSym} = () => ` + genCompareOv(safePath, ov);
 		str += genEq(sc, subArrResults, ov, [docSym, ...lastPart]);
 
 		const subArrResultSym = sc.inc();
-		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
+		str += `let ${subArrResultSym} = ${subArrResults.map((s) => `${s}()`).join(" || ")}; `;
 		str += `return ${subArrResultSym}; }); `;
 	}
 
-	const safePath = getSafePath(pathParts);
-	const pathSym = sc.inc();
-	eqResults.push(pathSym);
-
-	str += `const ${pathSym} = `;
-	str += genCompareOv(safePath, ov);
-	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
-
-	if (mode === "nor") {
-		str += `${eqSym} = !${eqSym}; `;
-	}
+	str += `const ${eqSym} = () => ${mode === "nor" ? "!" : ""}(${eqResults.map((s) => `${s}()`).join(" || ")}); `;
 
 	return str;
 }

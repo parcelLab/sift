@@ -1,142 +1,140 @@
-{ RAW: true }
-Benchmark results:
-explicit $eq: compiled was faster by 1.9321990441481591x
+explicit $eq: compiled was faster by 1.5911216802152803x
   n:   sift=10000, compiled=10000
-  m:   sift=4195ns, compiled=2171ns
-  sd:  sift=2342ns, compiled=832ns
-  p50: sift=4127ns, compiled=2125ns
-  p95: sift=4503ns, compiled=2417ns
-  p99: sift=5503ns, compiled=2959ns
-  com: sift=3714ns, compiled=2141ns
-  run: sift=311ns, compiled=123ns
+  m:   sift=3740ns, compiled=2350ns
+  sd:  sift=743ns, compiled=1355ns
+  p50: sift=3669ns, compiled=2293ns
+  p95: sift=4001ns, compiled=2543ns
+  p99: sift=4959ns, compiled=3293ns
+  com: sift=3512ns, compiled=2235ns
+  run: sift=314ns, compiled=155ns
 
-implicit $eq: compiled was faster by 2.369680778010466x
+implicit $eq: compiled was faster by 1.9929645397532139x
   n:   sift=10000, compiled=10000
-  m:   sift=5116ns, compiled=2159ns
-  sd:  sift=2871ns, compiled=1159ns
-  p50: sift=4959ns, compiled=2125ns
-  p95: sift=5459ns, compiled=2377ns
-  p99: sift=6751ns, compiled=2959ns
-  com: sift=4580ns, compiled=2092ns
-  run: sift=310ns, compiled=101ns
+  m:   sift=4698ns, compiled=2357ns
+  sd:  sift=1828ns, compiled=2477ns
+  p50: sift=4587ns, compiled=2251ns
+  p95: sift=4959ns, compiled=2543ns
+  p99: sift=6295ns, compiled=3167ns
+  com: sift=4412ns, compiled=2234ns
+  run: sift=311ns, compiled=137ns
 
-explicit $eq, full object match: compiled was faster by 1.4107859608275177x
+explicit $eq, full object match: compiled was faster by 1.1950608910074956x
   n:   sift=10000, compiled=10000
-  m:   sift=4455ns, compiled=3157ns
-  sd:  sift=879ns, compiled=2361ns
-  p50: sift=4375ns, compiled=3083ns
-  p95: sift=4835ns, compiled=3417ns
-  p99: sift=5959ns, compiled=4251ns
-  com: sift=3728ns, compiled=2614ns
-  run: sift=565ns, compiled=717ns
+  m:   sift=4033ns, compiled=3374ns
+  sd:  sift=1281ns, compiled=2429ns
+  p50: sift=3959ns, compiled=3209ns
+  p95: sift=4251ns, compiled=3667ns
+  p99: sift=5503ns, compiled=4835ns
+  com: sift=3516ns, compiled=2718ns
+  run: sift=563ns, compiled=699ns
 
-nested object path, explicit $eq: compiled was faster by 1.020223888371462x
+nested object path, explicit $eq: sift was faster by 1.1504703184808869x
   n:   sift=10000, compiled=10000
-  m:   sift=4290ns, compiled=4205ns
-  sd:  sift=2121ns, compiled=2925ns
-  p50: sift=4171ns, compiled=4083ns
-  p95: sift=4587ns, compiled=4503ns
-  p99: sift=5627ns, compiled=5587ns
-  com: sift=3708ns, compiled=4155ns
-  run: sift=378ns, compiled=142ns
+  m:   sift=3874ns, compiled=4457ns
+  sd:  sift=1500ns, compiled=2412ns
+  p50: sift=3791ns, compiled=4335ns
+  p95: sift=4085ns, compiled=4711ns
+  p99: sift=5211ns, compiled=6127ns
+  com: sift=3498ns, compiled=4409ns
+  run: sift=392ns, compiled=165ns
 
-nested object path, implicit $eq: compiled was faster by 1.2242546764219504x
+nested object path, implicit $eq: compiled was faster by 1.0824519017209984x
   n:   sift=10000, compiled=10000
-  m:   sift=5130ns, compiled=4191ns
-  sd:  sift=674ns, compiled=3118ns
-  p50: sift=5043ns, compiled=4043ns
-  p95: sift=5543ns, compiled=4459ns
-  p99: sift=6751ns, compiled=5503ns
-  com: sift=4587ns, compiled=4079ns
-  run: sift=375ns, compiled=122ns
+  m:   sift=4799ns, compiled=4434ns
+  sd:  sift=2177ns, compiled=1735ns
+  p50: sift=4711ns, compiled=4335ns
+  p95: sift=5043ns, compiled=4711ns
+  p99: sift=6419ns, compiled=6043ns
+  com: sift=4402ns, compiled=4377ns
+  run: sift=391ns, compiled=141ns
 
-nested object path, full object match: sift was faster by 1.2257098056975348x
+nested object path, full object match: sift was faster by 1.4329658355491994x
   n:   sift=10000, compiled=10000
-  m:   sift=4400ns, compiled=5394ns
-  sd:  sift=1588ns, compiled=1781ns
-  p50: sift=4295ns, compiled=5251ns
-  p95: sift=4751ns, compiled=5795ns
-  p99: sift=5919ns, compiled=7167ns
-  com: sift=3683ns, compiled=5073ns
-  run: sift=540ns, compiled=438ns
+  m:   sift=4019ns, compiled=5759ns
+  sd:  sift=2362ns, compiled=2665ns
+  p50: sift=3917ns, compiled=5583ns
+  p95: sift=4211ns, compiled=6127ns
+  p99: sift=5335ns, compiled=7835ns
+  com: sift=3481ns, compiled=5305ns
+  run: sift=564ns, compiled=482ns
 
-implicit $eq, object against null: compiled was faster by 1.0556887779655493x
+implicit $eq, object against null: sift was faster by 1.0885437652508574x
   n:   sift=10000, compiled=10000
-  m:   sift=4230ns, compiled=4007ns
-  sd:  sift=1392ns, compiled=2523ns
-  p50: sift=4167ns, compiled=3875ns
-  p95: sift=4543ns, compiled=4291ns
-  p99: sift=5503ns, compiled=5335ns
-  com: sift=3637ns, compiled=3907ns
-  run: sift=403ns, compiled=157ns
+  m:   sift=3820ns, compiled=4158ns
+  sd:  sift=2059ns, compiled=1761ns
+  p50: sift=3709ns, compiled=4043ns
+  p95: sift=4001ns, compiled=4459ns
+  p99: sift=5087ns, compiled=5587ns
+  com: sift=3415ns, compiled=4066ns
+  run: sift=430ns, compiled=206ns
 
-explicit $eq, object against null: compiled was faster by 1.067377821811483x
+explicit $eq, object against null: sift was faster by 1.0931540108438589x
   n:   sift=10000, compiled=10000
-  m:   sift=4302ns, compiled=4030ns
-  sd:  sift=1165ns, compiled=2432ns
-  p50: sift=4211ns, compiled=3917ns
-  p95: sift=4627ns, compiled=4295ns
-  p99: sift=5751ns, compiled=5295ns
-  com: sift=3696ns, compiled=3903ns
-  run: sift=397ns, compiled=154ns
+  m:   sift=3875ns, compiled=4236ns
+  sd:  sift=995ns, compiled=2467ns
+  p50: sift=3793ns, compiled=4083ns
+  p95: sift=4127ns, compiled=4459ns
+  p99: sift=5211ns, compiled=5879ns
+  com: sift=3518ns, compiled=4110ns
+  run: sift=414ns, compiled=200ns
 
-match against arrays on ov: sift was faster by 1.165023825645066x
+match against arrays on ov: sift was faster by 1.336511436844917x
   n:   sift=10000, compiled=10000
-  m:   sift=4992ns, compiled=5816ns
-  sd:  sift=1349ns, compiled=3511ns
-  p50: sift=4879ns, compiled=5587ns
-  p95: sift=5375ns, compiled=6167ns
-  p99: sift=6587ns, compiled=7919ns
-  com: sift=3756ns, compiled=4916ns
-  run: sift=1059ns, compiled=977ns
+  m:   sift=4566ns, compiled=6102ns
+  sd:  sift=1297ns, compiled=3799ns
+  p50: sift=4459ns, compiled=5875ns
+  p95: sift=4795ns, compiled=6627ns
+  p99: sift=6251ns, compiled=8751ns
+  com: sift=3576ns, compiled=5206ns
+  run: sift=1070ns, compiled=978ns
 
-match against arrays on doc: compiled was faster by 1.2953975636061539x
+match against arrays on doc: compiled was faster by 1.1001080206284723x
   n:   sift=10000, compiled=10000
-  m:   sift=5439ns, compiled=4198ns
-  sd:  sift=2512ns, compiled=1977ns
-  p50: sift=5295ns, compiled=4085ns
-  p95: sift=5835ns, compiled=4503ns
-  p99: sift=6919ns, compiled=5587ns
-  com: sift=4561ns, compiled=4071ns
-  run: sift=671ns, compiled=148ns
+  m:   sift=5057ns, compiled=4597ns
+  sd:  sift=1436ns, compiled=2522ns
+  p50: sift=4959ns, compiled=4419ns
+  p95: sift=5335ns, compiled=4919ns
+  p99: sift=6835ns, compiled=6379ns
+  com: sift=4437ns, compiled=4349ns
+  run: sift=689ns, compiled=257ns
 
-unindexed nested object path with intermediate arrays on doc: compiled was faster by 1.259359203805378x
+unindexed nested object path with intermediate arrays on doc: compiled was faster by 1.083491455424883x
   n:   sift=10000, compiled=10000
-  m:   sift=5238ns, compiled=4160ns
-  sd:  sift=1352ns, compiled=1472ns
-  p50: sift=5127ns, compiled=4083ns
-  p95: sift=5627ns, compiled=4503ns
-  p99: sift=6919ns, compiled=5543ns
-  com: sift=4562ns, compiled=4095ns
-  run: sift=494ns, compiled=141ns
+  m:   sift=4854ns, compiled=4480ns
+  sd:  sift=1203ns, compiled=1528ns
+  p50: sift=4791ns, compiled=4375ns
+  p95: sift=5127ns, compiled=4795ns
+  p99: sift=6419ns, compiled=6087ns
+  com: sift=4432ns, compiled=4350ns
+  run: sift=515ns, compiled=201ns
 
-unindexed nested object path against null: compiled was faster by 1.0917407616936137x
+unindexed nested object path against null: sift was faster by 1.0639873133984x
   n:   sift=10000, compiled=10000
-  m:   sift=4405ns, compiled=4035ns
-  sd:  sift=1209ns, compiled=1717ns
-  p50: sift=4335ns, compiled=3919ns
-  p95: sift=4751ns, compiled=4335ns
-  p99: sift=5835ns, compiled=5295ns
-  com: sift=3633ns, compiled=3941ns
-  run: sift=589ns, compiled=201ns
+  m:   sift=3975ns, compiled=4229ns
+  sd:  sift=1245ns, compiled=2635ns
+  p50: sift=3917ns, compiled=4083ns
+  p95: sift=4211ns, compiled=4503ns
+  p99: sift=5251ns, compiled=5835ns
+  com: sift=3421ns, compiled=4039ns
+  run: sift=598ns, compiled=201ns
 
-indexed nested object path with intermediate arrays on doc: sift was faster by 1.6233196509822536x
+indexed nested object path with intermediate arrays on doc: sift was faster by 1.858903132369591x
   n:   sift=10000, compiled=10000
-  m:   sift=5221ns, compiled=8475ns
-  sd:  sift=746ns, compiled=6043ns
-  p50: sift=5127ns, compiled=8083ns
-  p95: sift=5667ns, compiled=8879ns
-  p99: sift=6751ns, compiled=11383ns
-  com: sift=4580ns, compiled=8205ns
-  run: sift=497ns, compiled=295ns
+  m:   sift=4914ns, compiled=9134ns
+  sd:  sift=1286ns, compiled=4168ns
+  p50: sift=4835ns, compiled=8751ns
+  p95: sift=5171ns, compiled=9751ns
+  p99: sift=6583ns, compiled=13167ns
+  com: sift=4449ns, compiled=8847ns
+  run: sift=515ns, compiled=358ns
 
-nested arrays on doc: sift was faster by 1.6084858070387043x
+nested arrays on doc: sift was faster by 1.86482247539304x
   n:   sift=10000, compiled=10000
-  m:   sift=5358ns, compiled=8618ns
-  sd:  sift=1989ns, compiled=4231ns
-  p50: sift=5251ns, compiled=8295ns
-  p95: sift=5751ns, compiled=9127ns
-  p99: sift=6963ns, compiled=11711ns
-  com: sift=4569ns, compiled=8463ns
-  run: sift=574ns, compiled=200ns
+  m:   sift=5057ns, compiled=9431ns
+  sd:  sift=2119ns, compiled=7474ns
+  p50: sift=4919ns, compiled=9007ns
+  p95: sift=5295ns, compiled=9959ns
+  p99: sift=6711ns, compiled=13215ns
+  com: sift=4419ns, compiled=9102ns
+  run: sift=671ns, compiled=302ns
 
