@@ -119,12 +119,17 @@ describe("$eq", async () => {
 				{ foo: { bar: "baz" } },
 				{ foo: { bar: ["baz"] } },
 				{ foo: { bar: [["baz"]] } },
+				{ foo: { bar: ["baz", ["baz"]] } },
 				{ foo: { bar: ["baz", "bar"] } },
 				{},
 				{ foo: "bar" },
 				{ foo: [{ bar: "qux" }] },
 			],
-			expected: [{ foo: { bar: ["baz"] } }, { foo: { bar: [["baz"]] } }],
+			expected: [
+				{ foo: { bar: ["baz"] } },
+				{ foo: { bar: [["baz"]] } },
+				{ foo: { bar: ["baz", ["baz"]] } },
+			],
 		},
 		{
 			name: "match against arrays on doc",
