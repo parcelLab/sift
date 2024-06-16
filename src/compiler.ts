@@ -118,7 +118,7 @@ function genEq(
 		const arrSym = sc.inc();
 		eqResults.push(arrSym);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
+		str += `const ${arrSym} = (${safeFirstPart}?.length) && ${safeFirstPart}.some?.((${docSym}) => {`;
 
 		const subArrResults: string[] = [];
 		const subArrSym = sc.inc();
