@@ -138,15 +138,15 @@ function genEq(
 	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
 	const results = [];
 
-	const safePath = getSafePath([kDoc, ...pathParts]);
+	const safePath = getSafePath(kDoc, pathParts);
 	results.push(kRet);
 	str += `let ${kRet} = ` + genCompareOv(safePath, ovs);
 
 	for (let i = 0; i < pathParts.length; i++) {
 		const head = pathParts.slice(0, i + 1);
 		const tail = pathParts.slice(i + 1);
-		const safeHeadPath = getSafePath([kDoc, ...head]);
-		const safeTailPath = getSafePath([kDoc, ...tail]);
+		const safeHeadPath = getSafePath(kDoc, head);
+		const safeTailPath = getSafePath(kDoc, tail);
 
 		const kArrRet = sc.inc();
 		results.push(kArrRet);
@@ -193,12 +193,12 @@ function genCompareOv(safePath: string, ovs: string) {
 	}
 }
 
-function getSafePath(parts: string[]): string {
-	let [path, ...tail] = parts;
+function getSafePath(kDoc: string, parts: string[]): string {
+	let path = kDoc;
 
-	for (const part of tail) {
+	for (const part of parts) {
 		path += isNaN(parseInt(part)) ? `?.${part}` : `?.[${part}]`;
 	}
 
-	return path!; // path always has kDoc at least
+	return path;
 }
