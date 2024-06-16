@@ -153,7 +153,7 @@ function genCompareOv(safePath: string, ov: OpValue) {
 	if (ov == null) {
 		str += `${safePath}; `;
 	} else if (typeof ov === "object") {
-		str += `JSON.stringify(${safePath}) === ${JSON.stringify(JSON.stringify(ov))}; `;
+		str += `JSON.stringify(${safePath}) === JSON.stringify(${JSON.stringify(ov)}); `;
 	} else {
 		str += `${safePath} === ${JSON.stringify(ov)}; `;
 	}
