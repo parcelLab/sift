@@ -8,7 +8,7 @@
     "test:watch": "vitest watch",
     "test:bench": "tsx benchmark/run.ts > benchmark/output.txt",
     "test:bench:csv": "tsx benchmark/run.ts --csv > benchmark/output.csv",
-    "test:bench:csv:unopt": "tsx --no-opt benchmark/run.ts --csv > benchmark/output-unopt.csv",
+    "test:bench:csv:unopt": "tsx --no-opt --no-sparkplug benchmark/run.ts --csv > benchmark/output-unopt.csv",
     "test:bench:debug": "tsx --trace-deopt --trace-opt benchmark/run.ts"
   },
   "repository": {
