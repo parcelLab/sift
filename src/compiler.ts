@@ -1,4 +1,4 @@
-import { Filter, OpValue, Query, cmpOps } from "./types";
+import { Filter, Query, cmpOps } from "./types";
 
 /**
  * Terminology
@@ -26,7 +26,7 @@ import { Filter, OpValue, Query, cmpOps } from "./types";
  */
 
 /** Symbols */
-const docSym = "doc";
+const kDoc = "doc";
 
 interface CompilerOptions {
 	/** Debug mode, dumps the function string into console */
@@ -45,7 +45,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	for (const path in query) {
 		const expOrOv = query[path];
 
-		const pathParts = [docSym, ...path.split(".")];
+		const pathParts = path.split(".");
 
 		/** When there are non-ops it the entire ov is used as a deep strict equal match */
 		const isAllOps =
@@ -56,29 +56,33 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ovs = JSON.stringify(expOrOv["$eq"]);
-				str += genEq(sc, results, ovs, pathParts);
+				const kRet = sc.inc();
+				results.push(kRet);
+				str += genEq(kRet, ovs, pathParts);
 			}
 		} else {
 			const ovs = JSON.stringify(expOrOv);
-			str += genEq(sc, results, ovs, pathParts);
+			const kRet = sc.inc();
+			results.push(kRet);
+			str += genEq(kRet, ovs, pathParts);
 		}
 	}
 
-	const retSym = sc.inc();
+	const kRet = sc.inc();
 
 	if (results.length > 0) {
-		str += `const ${retSym} = ${results.join(" && ")}; `;
+		str += `const ${kRet} = ${results.join(" && ")}; `;
 	} else {
-		str += `const ${retSym} = true; `;
+		str += `const ${kRet} = true; `;
 	}
 
-	str += `return ${retSym}`;
+	str += `return ${kRet}`;
 
 	if (options.debug) {
 		console.log(str);
 	}
 
-	return new Function(docSym, str) as Filter;
+	return new Function(kDoc, str) as Filter;
 }
 
 class SymbolCounter {
@@ -95,81 +99,68 @@ class SymbolCounter {
 
 type Mode = "and" | "or" | "nor";
 
-function genEq(
-	sc: SymbolCounter,
-	results: string[],
-	ovs: string,
-	pathParts: string[],
-) {
+function genEq(kRet: string, ovs: string, pathParts: string[]) {
 	let str = "";
-
-	const eqSym = sc.inc();
-	results.push(eqSym);
+	let sc = new SymbolCounter(0, kRet);
 
 	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
-	const eqResults = [];
+	const results = [];
 
-	for (let i = 1; i < pathParts.length; i++) {
-		const firstPart = pathParts.slice(0, i + 1);
-		const lastPart = pathParts.slice(i + 1);
-		const docSym = "d";
-		const safeFirstPart = getSafePath(firstPart);
-		const docAndLastPart = [docSym, ...lastPart];
-		const safePath = getSafePath(docAndLastPart);
-		const arrSym = sc.inc();
-		eqResults.push(arrSym);
+	const safePath = getSafePath([kDoc, ...pathParts]);
+	const kPathCmp = sc.inc();
+	results.push(kPathCmp);
+	str += `const ${kPathCmp} = ` + genCompareOv(safePath, ovs);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
+	for (let i = 0; i < pathParts.length; i++) {
+		const head = pathParts.slice(0, i + 1);
+		const tail = pathParts.slice(i + 1);
+		const safeHeadPath = getSafePath([kDoc, ...head]);
+		const safeTailPath = getSafePath([kDoc, ...tail]);
+
+		const kArrRet = sc.inc();
+		results.push(kArrRet);
+		str += `const ${kArrRet} = (Array.isArray(${safeHeadPath})) && ${safeHeadPath}.some((${kDoc}) => {`;
 
 		const subArrResults: string[] = [];
-		const subArrSym = sc.inc();
-		subArrResults.push(subArrSym);
 
-		str += `const ${subArrSym} = ` + genCompareOv(safePath, ovs);
-		str += genEq(sc, subArrResults, ovs, docAndLastPart);
+		const kSubPathCmp = sc.inc();
+		subArrResults.push(kSubPathCmp);
+		str += `const ${kSubPathCmp} = ` + genCompareOv(safeTailPath, ovs);
 
-		const subArrResultSym = sc.inc();
-		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
-		str += `return ${subArrResultSym}; }); `;
+		const kSubArrRet = sc.inc();
+		subArrResults.push(kSubArrRet);
+		str += genEq(kSubArrRet, ovs, tail);
+
+		const kSubArrResult = sc.inc();
+		str += `let ${kSubArrResult} = ${subArrResults.join(" || ")}; `;
+		str += `return ${kSubArrResult}; }); `;
 	}
 
-	const safePath = getSafePath(pathParts);
-	const pathSym = sc.inc();
-	eqResults.push(pathSym);
-
-	str += `const ${pathSym} = ` + genCompareOv(safePath, ovs);
-	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
+	str += `let ${kRet} = ${results.join(" || ")}; `;
 
 	if (mode === "nor") {
-		str += `${eqSym} = !${eqSym}; `;
+		str += `${kRet} = !${kRet}; `;
 	}
 
 	return str;
 }
 
 function genCompareOv(safePath: string, ovs: string) {
-	let str = "";
 	if (ovs === "null" || ovs === "undefined") {
-		str += `${safePath}; `;
+		return `${safePath}; `;
 	} else if (ovs[0] === "{" || ovs[0] === "[") {
-		str += `JSON.stringify(${safePath}) === ${JSON.stringify(ovs)}; `;
+		return `JSON.stringify(${safePath}) === ${JSON.stringify(ovs)}; `;
 	} else {
-		str += `${safePath} === ${ovs}; `;
+		return `${safePath} === ${ovs}; `;
 	}
-	return str;
 }
 
 function getSafePath(parts: string[]): string {
-	let path = parts[0] ?? "";
+	let [path, ...tail] = parts;
 
-	for (const part of parts.slice(1)) {
-		path += `?.[${stringifyPart(part)}]`;
+	for (const part of tail) {
+		path += isNaN(parseInt(part)) ? `?.${part}` : `?.[${part}]`;
 	}
 
-	return path;
-}
-
-function stringifyPart(part: string): string | number {
-	const n = parseInt(part);
-	return isNaN(n) ? JSON.stringify(part) : n;
+	return path ?? "";
 }
