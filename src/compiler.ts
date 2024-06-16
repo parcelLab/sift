@@ -29,8 +29,15 @@ import { deepCompare } from "./utils";
 /** Symbols */
 const docSym = "doc";
 const useStrictStr = '"use strict"; ';
-const deepCompareStr = deepCompare.toString() + "; ";
-const header = useStrictStr + deepCompareStr;
+if (typeof (globalThis as any).siftDeepCmp === "undefined") {
+	Object.defineProperty(globalThis, "siftDeepCmp", {
+		value: deepCompare,
+		enumerable: false,
+		writable: false,
+		configurable: false,
+	});
+}
+const header = useStrictStr;
 
 interface CompilerOptions {
 	/** Debug mode, dumps the function string into console */
@@ -117,9 +124,9 @@ function genEq(
 			`const ${eqSym} = ` +
 			genShallowCompare(safePath, ovs) +
 			` || ` +
-			`deepCompare(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
+			`siftDeepCmp(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
 	} else {
-		str += `const ${eqSym} = deepCompare(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
+		str += `const ${eqSym} = siftDeepCmp(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
 	}
 
 	return str;
