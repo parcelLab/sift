@@ -11,8 +11,9 @@
     "test:bench:csv:unopt": "tsx --no-opt --no-sparkplug benchmark/run.ts --csv > benchmark/output-unopt.csv",
     "test:bench:debug": "tsx --trace-deopt --trace-opt benchmark/run.ts",
     "asbuild:debug": "asc assembly/index.ts --target debug",
-    "asbuild:release": "asc assembly/index.ts --target release",
-    "asbuild": "npm run asbuild:debug && npm run asbuild:release"
+    "asbuild:release": "asc assembly/index.ts --target release -O3 --runtime stub",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release",
+    "bench:string": "vitest bench test/wasm.bench.ts"
   },
   "repository": {
     "type": "git",

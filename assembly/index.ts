@@ -93,3 +93,5 @@ function getSafePath(parts: string[]): string {
 
 	return path;
 }
+
+export { genSafePaths } from "./string";
