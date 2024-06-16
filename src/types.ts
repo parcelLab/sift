@@ -33,9 +33,9 @@ export type Filter = (value: unknown) => boolean;
 
 export type TestCase = {
 	name: string;
-	query: Query;
-	input: any[];
-	expected: any[];
+	query: any;
+	input: any;
+	expected: any;
 
 	opts?: TestOptions;
 

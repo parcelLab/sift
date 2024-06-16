@@ -1,4 +1,5 @@
-import { Filter, OpValue, Query, cmpOps } from "./types";
+import { Filter, Query, cmpOps } from "./types";
+import { deepCompare } from "./utils";
 
 /**
  * Terminology
@@ -27,6 +28,9 @@ import { Filter, OpValue, Query, cmpOps } from "./types";
 
 /** Symbols */
 const docSym = "doc";
+const useStrictStr = '"use strict"; ';
+const deepCompareStr = deepCompare.toString() + "; ";
+const header = useStrictStr + deepCompareStr;
 
 interface CompilerOptions {
 	/** Debug mode, dumps the function string into console */
@@ -37,7 +41,7 @@ interface CompilerOptions {
  * Compiles a mongo filter query into a filter function
  */
 export function compile(query: Query, options: CompilerOptions = {}): Filter {
-	let str = '"use strict"; ';
+	let str = header;
 
 	const sc = new SymbolCounter();
 	const results: string[] = [];
@@ -45,7 +49,7 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	for (const path in query) {
 		const expOrOv = query[path];
 
-		const pathParts = [docSym, ...path.split(".")];
+		const pathParts = path.split(".");
 
 		/** When there are non-ops it the entire ov is used as a deep strict equal match */
 		const isAllOps =
@@ -93,8 +97,6 @@ class SymbolCounter {
 	}
 }
 
-type Mode = "and" | "or" | "nor";
-
 function genEq(
 	sc: SymbolCounter,
 	results: string[],
@@ -106,57 +108,31 @@ function genEq(
 	const eqSym = sc.inc();
 	results.push(eqSym);
 
-	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
-	const eqResults = [];
+	const isOvNil = ovs === "null" || ovs === "undefined";
 
-	for (let i = 1; i < pathParts.length; i++) {
-		const firstPart = pathParts.slice(0, i + 1);
-		const lastPart = pathParts.slice(i + 1);
-		const docSym = "d";
-		const safeFirstPart = getSafePath(firstPart);
-		const docAndLastPart = [docSym, ...lastPart];
-		const safePath = getSafePath(docAndLastPart);
-		const arrSym = sc.inc();
-		eqResults.push(arrSym);
+	if (!isOvNil) {
+		const safePath = getSafePath([docSym, ...pathParts]);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
-
-		const subArrResults: string[] = [];
-		const subArrSym = sc.inc();
-		subArrResults.push(subArrSym);
-
-		str += `const ${subArrSym} = ` + genCompareOv(safePath, ovs);
-		str += genEq(sc, subArrResults, ovs, docAndLastPart);
-
-		const subArrResultSym = sc.inc();
-		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
-		str += `return ${subArrResultSym}; }); `;
-	}
-
-	const safePath = getSafePath(pathParts);
-	const pathSym = sc.inc();
-	eqResults.push(pathSym);
-
-	str += `const ${pathSym} = ` + genCompareOv(safePath, ovs);
-	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
-
-	if (mode === "nor") {
-		str += `${eqSym} = !${eqSym}; `;
+		str +=
+			`const ${eqSym} = ` +
+			genShallowCompare(safePath, ovs) +
+			` || ` +
+			`deepCompare(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
+	} else {
+		str += `const ${eqSym} = deepCompare(${docSym}, ${JSON.stringify(pathParts)}, ${ovs}); `;
 	}
 
 	return str;
 }
 
-function genCompareOv(safePath: string, ovs: string) {
-	let str = "";
+function genShallowCompare(safePath: string, ovs: string) {
 	if (ovs === "null" || ovs === "undefined") {
-		str += `${safePath}; `;
+		return `${safePath}`;
 	} else if (ovs[0] === "{" || ovs[0] === "[") {
-		str += `JSON.stringify(${safePath}) === ${JSON.stringify(ovs)}; `;
+		return `JSON.stringify(${safePath}) === ${JSON.stringify(ovs)}`;
 	} else {
-		str += `${safePath} === ${ovs}; `;
+		return `${safePath} === ${ovs}`;
 	}
-	return str;
 }
 
 function getSafePath(parts: string[]): string {
