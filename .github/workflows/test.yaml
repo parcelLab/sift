@@ -1,0 +1,52 @@
+name: Test
+
+env:
+  COMPOSE_PROJECT_NAME: sift
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**.ts"
+      - package.json
+  pull_request:
+    paths:
+      - "**.ts"
+      - package.json
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Compose up
+        run: docker compose up --detach --wait mongodb
+
+      - name: Install npm dependencies
+        run: npm i
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run test
+        run: npm run test:coverage
+        env:
+          REDIS_NODE: redis://localhost:6379
+
+      - name: Upload to codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          url: https://codecov.parcellab.dev
+          fail_ci_if_error: true
+          verbose: true

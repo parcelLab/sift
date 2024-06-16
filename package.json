@@ -4,7 +4,9 @@
   "description": "mongodb query in javascript",
   "main": "index.js",
   "scripts": {
+    "lint": "tsc --noEmit && prettier --check --ignore-unknown .",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "test:bench": "tsx benchmark/run.ts > benchmark/output.txt",
     "test:bench:csv": "tsx benchmark/run.ts --csv > benchmark/output.csv",
@@ -32,6 +34,7 @@
     "@tsconfig/node18": "^18.2.4",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.14.2",
+    "@vitest/coverage-v8": "^1.6.0",
     "mongodb": "^6.7.0",
     "prettier": "^3.3.1",
     "sift": "^17.1.3",
