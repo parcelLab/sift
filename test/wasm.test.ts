@@ -1,7 +1,6 @@
-import { expect, test } from "vitest";
+import { expect, expectTypeOf, test } from "vitest";
 
-import { compile as compileJs } from "../src/compiler";
-import { compile as compileAs } from "../src/compiler";
+import { compile } from "../src/compiler.js";
 
 import { add } from "../build/debug.js";
 
@@ -10,9 +9,11 @@ test("wasm import and runs", () => {
 });
 
 test("compile-wasm returns compile", () => {
-	const filter = { foo: { $eq: "bar" } };
-	const jsOutput = compileJs(filter).toString();
-	const asOutput = compileAs(filter).toString();
+	const filter = compile({ foo: { $eq: "bar" } });
 
-	expect(jsOutput).toEqual(asOutput);
+	expectTypeOf(filter).toBeFunction();
+
+	const output = filter({});
+
+	expectTypeOf(output).toBeBoolean();
 });

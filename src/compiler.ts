@@ -1,5 +1,5 @@
-import { Filter, Query, cmpOps } from "./types";
-import { genEq } from "../build/debug";
+import { Filter, Query, cmpOps } from "./types.js";
+import { genEq } from "../build/release.js";
 
 /**
  * Terminology

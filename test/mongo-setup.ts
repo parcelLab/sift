@@ -1,4 +1,4 @@
-import { db, mongo } from "./mongo";
+import { db, mongo } from "./mongo.js";
 
 export async function setup() {
 	await mongo.connect();

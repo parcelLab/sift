@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { TestCase } from "../src/types";
-import { getExpectedMongoDocs } from "./mongo";
+import { TestCase } from "../src/types.js";
+import { getExpectedMongoDocs } from "./mongo.js";
 
 describe("mongo test cases", async () => {
 	const testCases: TestCase[] = [

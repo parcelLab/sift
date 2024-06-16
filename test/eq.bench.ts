@@ -1,6 +1,6 @@
 import { BenchOptions, bench, describe } from "vitest";
-import { compile } from "../src/compiler";
-import sift from "sift";
+import { compile } from "../src/compiler.js";
+import { sift } from "../src/sift.js";
 
 const benchmarkScenarios: BenchOptions[] = [
 	{ time: 10, warmupTime: 10 },
@@ -8,8 +8,8 @@ const benchmarkScenarios: BenchOptions[] = [
 ];
 
 const applySift = (query: any, input: any[]) => {
-	const filter = sift(query);
-	input.filter(filter);
+	const filter = sift(query)
+	input.filter((i) => filter(i));
 };
 
 const applyCompiled = (query: any, input: any[]) => {

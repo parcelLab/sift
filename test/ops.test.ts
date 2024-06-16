@@ -1,8 +1,8 @@
-import sift from "sift";
 import { describe, expect, test } from "vitest";
-import { compile } from "../src/compiler";
-import { TestCase } from "../src/types";
-import { getExpectedMongoDocs } from "./mongo";
+import { compile } from "../src/compiler.js";
+import { sift } from "../src/sift.js";
+import { TestCase } from "../src/types.js";
+import { getExpectedMongoDocs } from "./mongo.js";
 
 describe("$eq", async () => {
 	const testCases: TestCase[] = [

@@ -1,8 +1,8 @@
 import { randomInt } from "crypto";
 import { createHistogram } from "perf_hooks";
-import sift from "sift";
-import { compile } from "../src/compiler";
-import { TestCase } from "../src/types";
+import { compile } from "../src/compiler.js";
+import { sift } from "../src/sift.js";
+import { TestCase } from "../src/types.js";
 
 const CSV = process.argv.includes("--csv");
 const RUNS_PER_CASE = 10_000;
