@@ -94,13 +94,19 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 	str += `return ${kRet}`;
 
-	const fn = new Function(kDoc, str) as Filter;
-
-	if (options.debug) {
-		console.log(fn.toString());
+	try {
+		const fn = new Function(kDoc, str) as Filter;
+		if (options.debug) {
+			console.log(fn.toString());
+		}
+		return fn;
+	} catch (error) {
+		console.error(error);
+		if (options.debug) {
+			console.error(str);
+		}
+		throw error;
 	}
-
-	return fn;
 }
 
 class SymbolCounter {
@@ -133,9 +139,8 @@ function genEq(
 	const results = [];
 
 	const safePath = getSafePath([kDoc, ...pathParts]);
-	const kPathCmp = sc.inc();
-	results.push(kPathCmp);
-	str += `const ${kPathCmp} = ` + genCompareOv(safePath, ovs);
+	results.push(kRet);
+	str += `let ${kRet} = ` + genCompareOv(safePath, ovs);
 
 	for (let i = 0; i < pathParts.length; i++) {
 		const head = pathParts.slice(0, i + 1);
@@ -151,18 +156,20 @@ function genEq(
 
 		const kSubPathCmp = sc.inc();
 		subArrResults.push(kSubPathCmp);
-		str += `const ${kSubPathCmp} = ` + genCompareOv(safeTailPath, ovs);
+		str += `let ${kSubPathCmp} = ` + genCompareOv(safeTailPath, ovs);
 
-		const kSubArrRet = sc.inc();
-		subArrResults.push(kSubArrRet);
-		str += genEq(kSubArrRet, ovs, tail, options);
+		if (tail.length) {
+			const kSubArrRet = sc.inc();
+			subArrResults.push(kSubArrRet);
+			str += genEq(kSubArrRet, ovs, tail, options);
+		}
 
 		const kSubArrResult = sc.inc();
 		str += `let ${kSubArrResult} = ${subArrResults.join(" || ")}; `;
 		str += `return ${kSubArrResult}; }); `;
 	}
 
-	str += `let ${kRet} = ${mode === "nor" ? "!" : ""}(${results.join(" || ")}); `;
+	str += `${kRet} = ${mode === "nor" ? "!" : ""}(${results.join(" || ")}); `;
 
 	if (options.debug) {
 		str += `\n/* END kRet:${kRet} pathParts:[${pathParts.join(",")}] */\n`;
