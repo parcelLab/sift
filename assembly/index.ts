@@ -4,24 +4,10 @@ export function add(a: i32, b: i32): i32 {
 	return a + b;
 }
 
-class GenEqReturnType {
-	str!: string;
-	sc!: i32;
-	results!: string[];
-}
-
-export function genEq(
-	sc: i32,
-	results: string[],
-	/** OpValue serialized */
-	ovs: string,
-	pathParts: string[],
-): GenEqReturnType {
+export function genEq(ns: string, ovs: string, pathParts: string[]): string {
 	let str = "";
 
-	sc++;
-	const eqSym = `s_${sc}`;
-	results.push(eqSym);
+	let sc = 0;
 
 	// "and" | "or" | "nor"
 	const mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
@@ -35,42 +21,47 @@ export function genEq(
 		const lastParts = [docSym].concat(lastPart);
 		const safePath = getSafePath(lastParts);
 		sc++;
-		const arrSym = `s_${sc}`;
+		const arrSym = `${ns}_${sc}`;
 		eqResults.push(arrSym);
 
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
+		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => { `;
 
-		const subArrResults: string[] = [];
-		sc++;
-		const subArrSym = `s_${sc}`;
-		subArrResults.push(subArrSym);
+		{
+			const subArrResults: string[] = [];
 
-		str += `const ${subArrSym} = `;
-		str += genCompareOv(safePath, ovs);
-		const res = genEq(sc, subArrResults, ovs, lastParts);
-		sc = res.sc;
-		str += res.str;
+			sc++;
+			const subArrSym = `${ns}_${sc}`;
+			subArrResults.push(subArrSym);
 
-		sc++;
-		const subArrResultSym = `s_${sc}`;
-		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
-		str += `return ${subArrResultSym}; }); `;
+			str += `const ${subArrSym} = ` + genCompareOv(safePath, ovs);
+
+			sc++;
+			const subNs = `${ns}_${sc}`;
+			str += genEq(subNs, ovs, lastParts);
+			subArrResults.push(subNs);
+
+			sc++;
+			const subArrResultSym = `${ns}_${sc}`;
+			str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
+			str += `return ${subArrResultSym}; `;
+		}
+
+		str += `}); `;
 	}
 
 	const safePath = getSafePath(pathParts);
 	sc++;
-	const pathSym = `s_${sc}`;
+	const pathSym = `${ns}_${sc}`;
 	eqResults.push(pathSym);
 
-	str += `const ${pathSym} = `;
-	str += genCompareOv(safePath, ovs);
-	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
+	str += `const ${pathSym} = ` + genCompareOv(safePath, ovs);
+	str += `let ${ns} = ${eqResults.join(" || ")}; `;
 
 	if (mode === "nor") {
-		str += `${eqSym} = !${eqSym}; `;
+		str += `${ns} = !${ns}; `;
 	}
 
-	return { str, sc, results };
+	return str;
 }
 
 function genCompareOv(safePath: string, ovs: string): string {

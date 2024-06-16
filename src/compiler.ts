@@ -1,4 +1,6 @@
 import { Filter, Query, cmpOps } from "./types.js";
+
+// import { genEq } from "../assembly/index.js"; // uncomment for easier debugging
 import { genEq } from "../build/release.js";
 
 /**
@@ -38,10 +40,9 @@ interface CompilerOptions {
  * Compiles a mongo filter query into a filter function
  */
 export function compile(query: Query, options: CompilerOptions = {}): Filter {
-	let str = '"use strict"; ';
+	let str = '"use strict"; let results = true; ';
 
 	let sc = 0;
-	let results: string[] = [];
 
 	for (const path in query) {
 		const expOrOv = query[path];
@@ -57,31 +58,21 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ovs = JSON.stringify(expOrOv["$eq"]);
-				const res = genEq(sc, results, ovs, pathParts);
-
-				sc = res.sc;
-				str += res.str;
-				results = res.results;
+				sc++;
+				const ns = `s_${sc}`;
+				str += genEq(ns, ovs, pathParts);
+				str += `results = results && ${ns}; `;
 			}
 		} else {
 			const ovs = JSON.stringify(expOrOv);
-			const res = genEq(sc, results, ovs, pathParts);
-			sc = res.sc;
-			str += res.str;
-			results = res.results;
+			sc++;
+			const ns = `s_${sc}`;
+			str += genEq(ns, ovs, pathParts);
+			str += `results = results && ${ns}; `;
 		}
 	}
 
-	sc++;
-	const retSym = `s_${sc}`;
-
-	if (results.length > 0) {
-		str += `const ${retSym} = ${results.join(" && ")}; `;
-	} else {
-		str += `const ${retSym} = true; `;
-	}
-
-	str += `return ${retSym}`;
+	str += `return results; `;
 
 	if (options.debug) {
 		console.log(str);
