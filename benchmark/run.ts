@@ -286,12 +286,8 @@ function runBench(cases: BenchCase[]) {
 
 		if (CSV) {
 			console.log(
-				`"${sift.name}",${sift.histogram.mean},${siftCompile.histogram.mean},${siftRun.histogram.mean},,,`,
+				`"${sift.name}",${sift.histogram.mean},${siftCompile.histogram.mean},${siftRun.histogram.mean},${compiled.histogram.mean},${compiledCompile.histogram.mean},${compiledRun.histogram.mean}`,
 			);
-			console.log(
-				`,,,,${compiled.histogram.mean},${compiledCompile.histogram.mean},${compiledRun.histogram.mean}`,
-			);
-			console.log("");
 		} else {
 			const { name, histogram: siftHistogram } = sift;
 			const { histogram: compiledHistogram } = compiled;

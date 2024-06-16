@@ -1,43 +1,15 @@
 ,sift,sift(compile),sift(run),compiled,compiled(compile),compiled(run)
-"explicit $eq",4108.2414,3741.2575,328.435,,,
-,,,,2294.4835,2181.0816,133.2463
-
-"implicit $eq",4941.2436,4638.9514,325.6254,,,
-,,,,2208.5565,2197.086,101.8684
-
-"explicit $eq, full object match",4393.0809,3764.2722,613.3774,,,
-,,,,3265.9563,2699.7707,652.9887
-
-"nested object path, explicit $eq",4134.457,3710.661,385.0846,,,
-,,,,4309.0632,4261.1404,142.4647
-
-"nested object path, implicit $eq",4981.2666,4658.6704,399.1931,,,
-,,,,4341.1639,4211.7926,124.726
-
-"nested object path, full object match",4198.5002,3715.8487,556.2119,,,
-,,,,5670.6136,5305.4532,463.8596
-
-"implicit $eq, object against null",3992.4125,3651.9603,414.9782,,,
-,,,,4107.0745,4031.0772,154.3103
-
-"explicit $eq, object against null",4116.7582,3782.5823,421.5962,,,
-,,,,4213.3934,4055.8929,142.2612
-
-"match against arrays on ov",4859.3124,3808.3996,1114.83,,,
-,,,,6118.5114,5189.2328,965.1672
-
-"match against arrays on doc",5321.6372,4660.5903,686.1788,,,
-,,,,4402.744,4221.8672,194.9526
-
-"unindexed nested object path with intermediate arrays on doc",5065.8908,4648.1548,514.6715,,,
-,,,,4383.5393,4217.5073,155.7169
-
-"unindexed nested object path against null",4152.3366,3650.9108,603.3154,,,
-,,,,4182.5987,4046.5867,162.8287
-
-"indexed nested object path with intermediate arrays on doc",5057.8532,4675.2093,507.1537,,,
-,,,,8699.4932,8421.3762,316.338
-
-"nested arrays on doc",5237.4488,4628.0044,687.2671,,,
-,,,,8973.3244,8704.9118,186.2406
-
+"explicit $eq",3901.3667,3666.0858,316.6716,2198.0491,2139.9465,114.992
+"implicit $eq",4715.6962,4496.0071,321.9629,2147.2605,2097.6282,115.4623
+"explicit $eq, full object match",4202.3129,3725.1906,573.384,3160.438,2591.6285,635.59
+"nested object path, explicit $eq",4038.2038,3685.2698,418.6929,4208.3516,4173.3642,152.9209
+"nested object path, implicit $eq",4851.7976,4478.6156,409.4244,4187.0085,4118.7801,126.6549
+"nested object path, full object match",4130.8405,3642.0574,566.1362,5456.289,5096.0768,449.0926
+"implicit $eq, object against null",3937.9347,3609.3028,421.4955,3995.9844,3965.6506,170.3623
+"explicit $eq, object against null",4024.1233,3673.0241,422.5881,4059.9248,3925.605,130.5074
+"match against arrays on ov",4736.0208,3732.222,1106.1703,5834.3902,4875.8854,938.5124
+"match against arrays on doc",5128.174,4448.4842,708.7336,4276.36,4161.2993,200.7724
+"unindexed nested object path with intermediate arrays on doc",4884.4888,4465.81,508.4805,4194.3221,4118.7489,150.8531
+"unindexed nested object path against null",4081.9639,3593.2429,597.0818,4010.1546,3906.2839,156.3377
+"indexed nested object path with intermediate arrays on doc",4935.6802,4479.3782,516.5532,8407.641,8154.8002,311.6686
+"nested arrays on doc",5008.1298,4456.1463,628.6604,8648.1812,8549.3412,202.3232
