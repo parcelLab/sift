@@ -1,4 +1,5 @@
 import { Filter, Query, cmpOps } from "./types";
+import { genEq } from "../build/debug";
 
 /**
  * Terminology
@@ -39,8 +40,8 @@ interface CompilerOptions {
 export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	let str = '"use strict"; ';
 
-	const sc = new SymbolCounter();
-	const results: string[] = [];
+	let sc = 0;
+	let results: string[] = [];
 
 	for (const path in query) {
 		const expOrOv = query[path];
@@ -56,15 +57,23 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ovs = JSON.stringify(expOrOv["$eq"]);
-				str += genEq(sc, results, ovs, pathParts);
+				const res = genEq(sc, results, ovs, pathParts);
+
+				sc = res.sc;
+				str += res.str;
+				results = res.results;
 			}
 		} else {
 			const ovs = JSON.stringify(expOrOv);
-			str += genEq(sc, results, ovs, pathParts);
+			const res = genEq(sc, results, ovs, pathParts);
+			sc = res.sc;
+			str += res.str;
+			results = res.results;
 		}
 	}
 
-	const retSym = sc.inc();
+	sc++;
+	const retSym = `s_${sc}`;
 
 	if (results.length > 0) {
 		str += `const ${retSym} = ${results.join(" && ")}; `;
@@ -79,99 +88,4 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 	}
 
 	return new Function(docSym, str) as Filter;
-}
-
-class SymbolCounter {
-	constructor(
-		private count: number = 0,
-		private prefix: string = "s_",
-	) {}
-
-	inc() {
-		this.count++;
-		return `${this.prefix}${this.count}`;
-	}
-}
-
-type Mode = "and" | "or" | "nor";
-
-function genEq(
-	sc: SymbolCounter,
-	results: string[],
-	/** OpValue serialized */
-	ovs: string,
-	pathParts: string[],
-) {
-	let str = "";
-
-	const eqSym = sc.inc();
-	results.push(eqSym);
-
-	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
-	const eqResults = [];
-
-	for (let i = 1; i < pathParts.length; i++) {
-		const firstPart = pathParts.slice(0, i + 1);
-		const lastPart = pathParts.slice(i + 1);
-		const docSym = "d";
-		const safeFirstPart = getSafePath(firstPart);
-		const safePath = getSafePath([docSym, ...lastPart]);
-		const arrSym = sc.inc();
-		eqResults.push(arrSym);
-
-		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
-
-		const subArrResults: string[] = [];
-		const subArrSym = sc.inc();
-		subArrResults.push(subArrSym);
-
-		str += `const ${subArrSym} = `;
-		str += genCompareOv(safePath, ovs);
-		str += genEq(sc, subArrResults, ovs, [docSym, ...lastPart]);
-
-		const subArrResultSym = sc.inc();
-		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
-		str += `return ${subArrResultSym}; }); `;
-	}
-
-	const safePath = getSafePath(pathParts);
-	const pathSym = sc.inc();
-	eqResults.push(pathSym);
-
-	str += `const ${pathSym} = `;
-	str += genCompareOv(safePath, ovs);
-	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
-
-	if (mode === "nor") {
-		str += `${eqSym} = !${eqSym}; `;
-	}
-
-	return str;
-}
-
-function genCompareOv(safePath: string, ovs: string) {
-	let str = "";
-	if (ovs === "null" || ovs === "undefined") {
-		str += `${safePath}; `;
-	} else if (ovs.at(0) === "{" || ovs.at(0) === "[") {
-		str += `JSON.stringify(${safePath}) === JSON.stringify(${ovs}); `;
-	} else {
-		str += `${safePath} === ${ovs}; `;
-	}
-	return str;
-}
-
-function getSafePath(parts: string[]): string {
-	let path = parts[0] ?? "";
-
-	for (const part of parts.slice(1)) {
-		path += `?.[${stringifyPart(part)}]`;
-	}
-
-	return path;
-}
-
-function stringifyPart(part: string): string | number {
-	const n = parseInt(part);
-	return isNaN(n) ? JSON.stringify(part) : n;
 }

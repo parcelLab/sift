@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
 import { compile as compileJs } from "../src/compiler";
-import { compile as compileAs } from "../src/compiler-wasm";
+import { compile as compileAs } from "../src/compiler";
 
 import { add } from "../build/debug.js";
 

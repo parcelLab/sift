@@ -5,9 +5,9 @@ export function add(a: i32, b: i32): i32 {
 }
 
 class GenEqReturnType {
-	str: string;
-	sc: i32;
-	results: string[];
+	str!: string;
+	sc!: i32;
+	results!: string[];
 }
 
 export function genEq(
