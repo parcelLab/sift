@@ -6,6 +6,7 @@ import { TestCase } from "../src/types";
 
 const CSV = process.argv.includes("--csv");
 const RUNS_PER_CASE = 10_000;
+const WARMUP = 100_000;
 
 type BenchCase = Pick<TestCase, "name" | "query" | "input" | "siftDiff">;
 const cases: BenchCase[] = [
@@ -287,7 +288,15 @@ function runBench(cases: BenchCase[]) {
 
 		if (CSV) {
 			console.log(
-				`"${sift.name}",${sift.histogram.mean},${siftCompile.histogram.mean},${siftRun.histogram.mean},${compiled.histogram.mean},${compiledCompile.histogram.mean},${compiledRun.histogram.mean}`,
+				[
+					`"${sift.name}"`,
+					sift.histogram.mean.toFixed(0),
+					siftCompile.histogram.mean.toFixed(0),
+					siftRun.histogram.mean.toFixed(0),
+					compiled.histogram.mean.toFixed(0),
+					compiledCompile.histogram.mean.toFixed(0),
+					compiledRun.histogram.mean.toFixed(0),
+				].join(","),
 			);
 		} else {
 			const { name, histogram: siftHistogram } = sift;
@@ -355,12 +364,12 @@ function warmupBench(cases: BenchCase[]) {
 			];
 		});
 
-	const totalRuns = benchmarkCases.length * RUNS_PER_CASE;
+	const totalRuns = benchmarkCases.length * WARMUP;
 
 	for (let i = 0; i < totalRuns; i++) {
 		let next = sample(benchmarkCases)!;
 
-		while (next.count >= RUNS_PER_CASE) {
+		while (next.count >= WARMUP) {
 			next = sample(benchmarkCases)!;
 		}
 

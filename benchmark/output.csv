@@ -1,15 +1,15 @@
 ,sift,sift(compile),sift(run),compiled,compiled(compile),compiled(run)
-"explicit $eq",5271.8105,3641.6715,305.9132,2141.2636,2106.4761,114.3787
-"implicit $eq",6184.6658,4540.622,309.2478,2117.0404,2063.2925,112.1668
-"explicit $eq, full object match",5573.8852,3662.4732,578.3429,3036.2192,2547.3344,600.4951
-"nested object path, explicit $eq",5434.7365,3646.6272,436.9993,4058.3976,3975.0458,116.0134
-"nested object path, implicit $eq",6342.678,4531.1466,420.5382,4028.902,3921.9492,119.1454
-"nested object path, full object match",5558.6812,3636.8435,586.2438,5148.7786,4853.2688,413.8859
-"implicit $eq, object against null",5362.6153,3558.3659,440.084,4074.9331,3999.4432,126.8472
-"explicit $eq, object against null",5462.4319,3638.9023,446.1677,4092.1021,3997.5133,126.1655
-"match against arrays on ov",6177.926,3700.3207,1090.9472,5554.1738,4698.964,917.1062
-"match against arrays on doc",6611.5566,4581.0162,711.085,4088.8958,3944.5665,195.2068
-"unindexed nested object path with intermediate arrays on doc",6427.4388,4530.9583,533.8417,4037.2232,3993.9502,148.3859
-"unindexed nested object path against null",5574.9628,3587.2265,622.9989,4082.9264,3996.8197,170.5905
-"indexed nested object path with intermediate arrays on doc",6422.9924,4557.6729,535.7793,7952.108,7769.3142,281.547
-"nested arrays on doc",6545.6286,4526.7112,618.601,8198.2714,8079.0136,145.7611
+"explicit $eq",3819,3830,318,2190,2093,106
+"implicit $eq",4777,4752,318,2154,2061,108
+"explicit $eq, full object match",4158,3823,590,3081,2537,599
+"nested object path, explicit $eq",3969,3825,428,4123,4044,119
+"nested object path, implicit $eq",4909,4748,431,4110,4006,118
+"nested object path, full object match",4092,3796,588,5234,4900,420
+"implicit $eq, object against null",3925,3741,456,4178,4033,128
+"explicit $eq, object against null",4015,3830,452,4196,4078,142
+"match against arrays on ov",4697,3893,1106,5622,4763,928
+"match against arrays on doc",5180,4741,721,4165,4039,178
+"unindexed nested object path with intermediate arrays on doc",4996,4743,549,4170,4010,150
+"unindexed nested object path against null",4113,3735,635,4211,4071,185
+"indexed nested object path with intermediate arrays on doc",5019,4757,551,8204,7939,290
+"nested arrays on doc",5122,4754,642,8411,8207,169
