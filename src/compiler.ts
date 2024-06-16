@@ -1,4 +1,4 @@
-import { Filter, OpValue, Query, cmpOps } from "./types";
+import { Filter, Query, cmpOps } from "./types";
 
 /**
  * Terminology
@@ -55,12 +55,12 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
-				const ov = expOrOv["$eq"];
-				str += genEq(sc, results, ov, pathParts);
+				const ovs = JSON.stringify(expOrOv["$eq"]);
+				str += genEq(sc, results, ovs, pathParts);
 			}
 		} else {
-			const ov = expOrOv as OpValue;
-			str += genEq(sc, results, ov, pathParts);
+			const ovs = JSON.stringify(expOrOv);
+			str += genEq(sc, results, ovs, pathParts);
 		}
 	}
 
@@ -98,7 +98,8 @@ type Mode = "and" | "or" | "nor";
 function genEq(
 	sc: SymbolCounter,
 	results: string[],
-	ov: OpValue,
+	/** OpValue serialized */
+	ovs: string,
 	pathParts: string[],
 ) {
 	let str = "";
@@ -106,7 +107,7 @@ function genEq(
 	const eqSym = sc.inc();
 	results.push(eqSym);
 
-	const mode: Mode = ov == null ? "nor" : "or";
+	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
 	const eqResults = [];
 
 	for (let i = 1; i < pathParts.length; i++) {
@@ -125,8 +126,8 @@ function genEq(
 		subArrResults.push(subArrSym);
 
 		str += `const ${subArrSym} = `;
-		str += genCompareOv(safePath, ov);
-		str += genEq(sc, subArrResults, ov, [docSym, ...lastPart]);
+		str += genCompareOv(safePath, ovs);
+		str += genEq(sc, subArrResults, ovs, [docSym, ...lastPart]);
 
 		const subArrResultSym = sc.inc();
 		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
@@ -138,7 +139,7 @@ function genEq(
 	eqResults.push(pathSym);
 
 	str += `const ${pathSym} = `;
-	str += genCompareOv(safePath, ov);
+	str += genCompareOv(safePath, ovs);
 	str += `let ${eqSym} = ${eqResults.join(" || ")}; `;
 
 	if (mode === "nor") {
@@ -148,14 +149,14 @@ function genEq(
 	return str;
 }
 
-function genCompareOv(safePath: string, ov: OpValue) {
+function genCompareOv(safePath: string, ovs: string) {
 	let str = "";
-	if (ov == null) {
+	if (ovs === "null" || ovs === "undefined") {
 		str += `${safePath}; `;
-	} else if (typeof ov === "object") {
-		str += `JSON.stringify(${safePath}) === JSON.stringify(${JSON.stringify(ov)}); `;
+	} else if (ovs.at(0) === "{" || ovs.at(0) === "[") {
+		str += `JSON.stringify(${safePath}) === JSON.stringify(${ovs}); `;
 	} else {
-		str += `${safePath} === ${JSON.stringify(ov)}; `;
+		str += `${safePath} === ${ovs}; `;
 	}
 	return str;
 }
