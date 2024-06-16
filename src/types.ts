@@ -37,7 +37,7 @@ export type TestCase = {
 	input: any[];
 	expected: any[];
 
-	opts?: TestOptions;
+	opts?: TestOptions & { debug: boolean };
 
 	siftDiff?: boolean;
 };

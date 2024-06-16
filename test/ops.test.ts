@@ -223,7 +223,9 @@ function runTestCases(testCases: TestCase[]) {
 				compile(testCase.query, { debug: true });
 			});
 
-			const filterFn = compile(testCase.query);
+			const filterFn = compile(testCase.query, {
+				debug: testCase.opts?.debug === true,
+			});
 			const actual = testCase.input.filter(filterFn);
 			const mongoExpected = await getExpectedMongoDocs(testCase);
 

@@ -56,19 +56,35 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 		if (isAllOps) {
 			if ("$eq" in expOrOv) {
 				const ovs = JSON.stringify(expOrOv["$eq"]);
+				if (options.debug) {
+					str += `\n/* START ${path} $eq ${ovs} */\n`;
+				}
 				const kRet = sc.inc();
 				results.push(kRet);
-				str += genEq(kRet, ovs, pathParts);
+				str += genEq(kRet, ovs, pathParts, options);
+				if (options.debug) {
+					str += `\n/* END $eq ${path} ${ovs} */\n`;
+				}
 			}
 		} else {
 			const ovs = JSON.stringify(expOrOv);
+			if (options.debug) {
+				str += `\n/* START ${path} $eq ${ovs} */\n`;
+			}
 			const kRet = sc.inc();
 			results.push(kRet);
-			str += genEq(kRet, ovs, pathParts);
+			str += genEq(kRet, ovs, pathParts, options);
+			if (options.debug) {
+				str += `\n/* END ${path} $eq ${ovs} */\n`;
+			}
 		}
 	}
 
 	const kRet = sc.inc();
+
+	if (options.debug) {
+		str += "\n/* return */\n";
+	}
 
 	if (results.length > 0) {
 		str += `const ${kRet} = ${results.join(" && ")}; `;
@@ -78,30 +94,40 @@ export function compile(query: Query, options: CompilerOptions = {}): Filter {
 
 	str += `return ${kRet}`;
 
+	const fn = new Function(kDoc, str) as Filter;
+
 	if (options.debug) {
-		console.log(str);
+		console.log(fn.toString());
 	}
 
-	return new Function(kDoc, str) as Filter;
+	return fn;
 }
 
 class SymbolCounter {
 	constructor(
 		private count: number = 0,
-		private prefix: string = "s_",
+		private prefix: string = "s",
 	) {}
 
 	inc() {
 		this.count++;
-		return `${this.prefix}${this.count}`;
+		return `${this.prefix}_${this.count}`;
 	}
 }
 
 type Mode = "and" | "or" | "nor";
 
-function genEq(kRet: string, ovs: string, pathParts: string[]) {
+function genEq(
+	kRet: string,
+	ovs: string,
+	pathParts: string[],
+	options: CompilerOptions,
+) {
 	let str = "";
 	let sc = new SymbolCounter(0, kRet);
+	if (options.debug) {
+		str += `\n/* START kRet:${kRet} pathParts:[${pathParts.join(",")}] */\n`;
+	}
 
 	const mode: Mode = ovs === "null" || ovs === "undefined" ? "nor" : "or";
 	const results = [];
@@ -129,17 +155,17 @@ function genEq(kRet: string, ovs: string, pathParts: string[]) {
 
 		const kSubArrRet = sc.inc();
 		subArrResults.push(kSubArrRet);
-		str += genEq(kSubArrRet, ovs, tail);
+		str += genEq(kSubArrRet, ovs, tail, options);
 
 		const kSubArrResult = sc.inc();
 		str += `let ${kSubArrResult} = ${subArrResults.join(" || ")}; `;
 		str += `return ${kSubArrResult}; }); `;
 	}
 
-	str += `let ${kRet} = ${results.join(" || ")}; `;
+	str += `let ${kRet} = ${mode === "nor" ? "!" : ""}(${results.join(" || ")}); `;
 
-	if (mode === "nor") {
-		str += `${kRet} = !${kRet}; `;
+	if (options.debug) {
+		str += `\n/* END kRet:${kRet} pathParts:[${pathParts.join(",")}] */\n`;
 	}
 
 	return str;
