@@ -4,16 +4,23 @@ export function add(a: i32, b: i32): i32 {
 	return a + b;
 }
 
+class GenEqReturnType {
+	str: string;
+	sc: i32;
+	results: string[];
+}
+
 export function genEq(
-	sc: SymbolCounter,
+	sc: i32,
 	results: string[],
 	/** OpValue serialized */
 	ovs: string,
 	pathParts: string[],
-): string {
+): GenEqReturnType {
 	let str = "";
 
-	const eqSym = sc.inc();
+	sc++;
+	const eqSym = `s_${sc}`;
 	results.push(eqSym);
 
 	// "and" | "or" | "nor"
@@ -27,26 +34,32 @@ export function genEq(
 		const safeFirstPart = getSafePath(firstPart);
 		const lastParts = [docSym].concat(lastPart);
 		const safePath = getSafePath(lastParts);
-		const arrSym = sc.inc();
+		sc++;
+		const arrSym = `s_${sc}`;
 		eqResults.push(arrSym);
 
 		str += `const ${arrSym} = (Array.isArray(${safeFirstPart})) && ${safeFirstPart}.some((${docSym}) => {`;
 
 		const subArrResults: string[] = [];
-		const subArrSym = sc.inc();
+		sc++;
+		const subArrSym = `s_${sc}`;
 		subArrResults.push(subArrSym);
 
 		str += `const ${subArrSym} = `;
 		str += genCompareOv(safePath, ovs);
-		str += genEq(sc, subArrResults, ovs, lastParts);
+		const res = genEq(sc, subArrResults, ovs, lastParts);
+		sc = res.sc;
+		str += res.str;
 
-		const subArrResultSym = sc.inc();
+		sc++;
+		const subArrResultSym = `s_${sc}`;
 		str += `let ${subArrResultSym} = ${subArrResults.join(" || ")}; `;
 		str += `return ${subArrResultSym}; }); `;
 	}
 
 	const safePath = getSafePath(pathParts);
-	const pathSym = sc.inc();
+	sc++;
+	const pathSym = `s_${sc}`;
 	eqResults.push(pathSym);
 
 	str += `const ${pathSym} = `;
@@ -57,19 +70,7 @@ export function genEq(
 		str += `${eqSym} = !${eqSym}; `;
 	}
 
-	return str;
-}
-
-class SymbolCounter {
-	constructor(
-		private count: number = 0,
-		private prefix: string = "s_",
-	) {}
-
-	inc(): string {
-		this.count++;
-		return `${this.prefix}${this.count}`;
-	}
+	return { str, sc, results };
 }
 
 function genCompareOv(safePath: string, ovs: string): string {
@@ -92,10 +93,10 @@ function getSafePath(parts: string[]): string {
 	for (let i = 0; i < body.length; i++) {
 		const part = body[i];
 
-		if (isInteger(part)) {
-			path += `?.[${part}]`;
+		if (isNaN(parseInt(part, 10))) {
+			path += `?.["${part}"]`;
 		} else {
-			path += `?.${part}`;
+			path += `?.[${part}]`;
 		}
 	}
 
