@@ -173,6 +173,7 @@ const cases: BenchCase[] = [
 	},
 ];
 
+warmupBench(cases);
 runBench(cases);
 
 /**
@@ -328,6 +329,44 @@ function runBench(cases: BenchCase[]) {
 			console.groupEnd();
 			console.log();
 		}
+	}
+}
+
+function warmupBench(cases: BenchCase[]) {
+	const benchmarkCases = cases
+		.filter((c) => !c.siftDiff)
+		.flatMap((c) => {
+			const siftFull = () => c.input.filter(sift(c.query));
+			const compileFull = () => c.input.filter(compile(c.query));
+
+			return [
+				{
+					name: c.name,
+					version: "sift",
+					run: siftFull,
+					count: 0,
+				},
+				{
+					name: c.name,
+					version: "compiled",
+					run: compileFull,
+					count: 0,
+				},
+			];
+		});
+
+	const totalRuns = benchmarkCases.length * RUNS_PER_CASE;
+
+	for (let i = 0; i < totalRuns; i++) {
+		let next = sample(benchmarkCases)!;
+
+		while (next.count >= RUNS_PER_CASE) {
+			next = sample(benchmarkCases)!;
+		}
+
+		next.run();
+
+		next.count++;
 	}
 }
 
