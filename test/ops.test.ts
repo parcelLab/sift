@@ -148,11 +148,12 @@ describe("$eq", async () => {
 			query: { "foo.bar": "baz" },
 			input: [
 				{ foo: [{ bar: "baz" }] },
+				{ foo: [{ bar: ["baz"] }] },
 				{},
 				{ foo: "bar" },
 				{ foo: [{ bar: "qux" }] },
 			],
-			expected: [{ foo: [{ bar: "baz" }] }],
+			expected: [{ foo: [{ bar: "baz" }] }, { foo: [{ bar: ["baz"] }] }],
 		},
 		{
 			name: "unindexed nested object path against null",
