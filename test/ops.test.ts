@@ -145,15 +145,22 @@ describe("$eq", async () => {
 		},
 		{
 			name: "unindexed nested object path with intermediate arrays on doc",
-			query: { "foo.bar": "baz" },
+			query: { "a.b.c.d": 1 },
 			input: [
-				{ foo: [{ bar: "baz" }] },
-				{ foo: [{ bar: ["baz"] }] },
+				{ a: { b: { c: [{ d: [1] }] } } },
+				{ a: [{ b: [{ c: [{ d: 1 }] }] }] },
+				{ a: [{ b: { c: [{ d: 1 }] } }] },
+				{ a: { b: { c: [null, { d: 1 }] } } },
+				{ a: [{ b: [{ c: [{ d: 2 }] }] }] },
+				{ a: {} },
 				{},
-				{ foo: "bar" },
-				{ foo: [{ bar: "qux" }] },
 			],
-			expected: [{ foo: [{ bar: "baz" }] }, { foo: [{ bar: ["baz"] }] }],
+			expected: [
+				{ a: { b: { c: [{ d: [1] }] } } },
+				{ a: [{ b: [{ c: [{ d: 1 }] }] }] },
+				{ a: [{ b: { c: [{ d: 1 }] } }] },
+				{ a: { b: { c: [null, { d: 1 }] } } },
+			],
 		},
 		{
 			name: "unindexed nested object path against null",
