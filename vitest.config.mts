@@ -5,6 +5,7 @@ export default defineConfig({
 		globalSetup: ["./test/mongo-setup.ts"],
 		coverage: {
 			reporter: "lcov",
+			include: ["src/*.ts"],
 		},
 	},
 });

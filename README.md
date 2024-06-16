@@ -5,6 +5,8 @@ Consider putting a CI badge too, for instance:
  [![myworkflow](https://github.com/parcellab/repo-template-base/workflows/myworkflow/badge.svg)](https://github.com/parcellab/repo-template-base/actions?workflow=myworkflow)
 -->
 
+[![codecov](https://codecov.parcellab.dev/gh/parcelLab/sift/graph/badge.svg?token=vvbtaY2PL7)](https://codecov.parcellab.dev/gh/parcelLab/sift)
+
 # Sift
 
 Run MongoDB queries in regular javascript.
