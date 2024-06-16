@@ -151,22 +151,27 @@ function genEq(
 		const kArrRet = sc.inc();
 		results.push(kArrRet);
 		str += `const ${kArrRet} = (Array.isArray(${safeHeadPath})) && ${safeHeadPath}.some((${kDoc}) => {`;
+		if (!tail.length) {
+			str += `return ${genCompareOv(kDoc, ovs)}; `;
+		} else {
+			const subArrResults: string[] = [];
 
-		const subArrResults: string[] = [];
+			const kSubPathCmp = sc.inc();
+			subArrResults.push(kSubPathCmp);
+			str += `let ${kSubPathCmp} = ` + genCompareOv(safeTailPath, ovs);
 
-		const kSubPathCmp = sc.inc();
-		subArrResults.push(kSubPathCmp);
-		str += `let ${kSubPathCmp} = ` + genCompareOv(safeTailPath, ovs);
+			if (tail.length) {
+				const kSubArrRet = sc.inc();
+				subArrResults.push(kSubArrRet);
+				str += genEq(kSubArrRet, ovs, tail, options);
+			}
 
-		if (tail.length) {
-			const kSubArrRet = sc.inc();
-			subArrResults.push(kSubArrRet);
-			str += genEq(kSubArrRet, ovs, tail, options);
+			const kSubArrResult = sc.inc();
+			str += `let ${kSubArrResult} = ${subArrResults.join(" || ")}; `;
+			str += `return ${kSubArrResult}; `;
 		}
 
-		const kSubArrResult = sc.inc();
-		str += `let ${kSubArrResult} = ${subArrResults.join(" || ")}; `;
-		str += `return ${kSubArrResult}; }); `;
+		str += `}); `;
 	}
 
 	str += `${kRet} = ${mode === "nor" ? "!" : ""}(${results.join(" || ")}); `;

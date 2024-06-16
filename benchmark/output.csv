@@ -1,15 +1,15 @@
 ,sift,sift(compile),sift(run),compiled,compiled(compile),compiled(run)
-"explicit $eq",4038,4018,300,1865,1806,99
-"implicit $eq",4964,4974,307,1864,1795,102
-"explicit $eq, full object match",4286,4035,560,2582,2129,514
-"nested object path, explicit $eq",4171,4030,419,3446,3318,115
-"nested object path, implicit $eq",5101,4971,424,3396,3319,114
-"nested object path, full object match",4292,3997,586,4319,4001,417
-"implicit $eq, object against null",4107,3939,452,3337,3224,119
-"explicit $eq, object against null",4177,4038,442,3366,3262,121
-"match against arrays on ov",4894,4095,1115,4633,3923,753
-"match against arrays on doc",5364,4948,712,3441,3301,189
-"unindexed nested object path with intermediate arrays on doc",5188,4946,528,3430,3334,167
-"unindexed nested object path against null",4280,3944,622,3396,3247,178
-"indexed nested object path with intermediate arrays on doc",5193,4976,532,6913,6683,284
-"nested arrays on doc",5287,4971,651,6823,6721,156
+"explicit $eq",4061,4060,313,1739,1657,123
+"implicit $eq",4984,4952,309,1713,1613,122
+"explicit $eq, full object match",4351,4076,569,2418,1985,526
+"nested object path, explicit $eq",4190,4053,419,3147,3071,127
+"nested object path, implicit $eq",5106,4930,418,3102,2992,127
+"nested object path, full object match",4306,4024,587,4022,3665,436
+"implicit $eq, object against null",4119,4002,447,3056,2955,134
+"explicit $eq, object against null",4188,4046,443,3068,2965,136
+"match against arrays on ov",4920,4127,1108,4359,3582,799
+"match against arrays on doc",5374,4957,716,3160,3016,195
+"unindexed nested object path with intermediate arrays on doc",5189,4952,532,3115,2994,163
+"unindexed nested object path against null",4328,3963,625,3061,2971,186
+"indexed nested object path with intermediate arrays on doc",5209,4932,540,6202,6061,284
+"nested arrays on doc",5339,4946,684,6189,6072,133
