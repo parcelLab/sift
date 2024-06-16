@@ -200,5 +200,5 @@ function getSafePath(parts: string[]): string {
 		path += isNaN(parseInt(part)) ? `?.${part}` : `?.[${part}]`;
 	}
 
-	return path ?? "";
+	return path!; // path always has kDoc at least
 }
