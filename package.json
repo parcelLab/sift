@@ -9,7 +9,10 @@
     "test:bench": "tsx benchmark/run.ts > benchmark/output.txt",
     "test:bench:csv": "tsx benchmark/run.ts --csv > benchmark/output.csv",
     "test:bench:csv:unopt": "tsx --no-opt --no-sparkplug benchmark/run.ts --csv > benchmark/output-unopt.csv",
-    "test:bench:debug": "tsx --trace-deopt --trace-opt benchmark/run.ts"
+    "test:bench:debug": "tsx --trace-deopt --trace-opt benchmark/run.ts",
+    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild:release": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release"
   },
   "repository": {
     "type": "git",
@@ -32,6 +35,7 @@
     "@tsconfig/node18": "^18.2.4",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.14.2",
+    "assemblyscript": "^0.27.27",
     "mongodb": "^6.7.0",
     "prettier": "^3.3.1",
     "sift": "^17.1.3",
