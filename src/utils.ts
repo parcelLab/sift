@@ -7,42 +7,42 @@ import { OpValue } from "./types";
 export function deepCompare(
 	obj: any | any[],
 	path: string[],
-	value: OpValue,
+	ov: OpValue,
 ): boolean {
 	if (path.length === 0) {
-		if (Array.isArray(obj) && obj.some((o) => deepCompare(o, [], value))) {
+		if (Array.isArray(obj) && obj.some((o) => deepCompare(o, path, ov))) {
 			return true;
 		}
 
-		if (obj == null && value == null) {
+		if (obj == null && ov == null) {
 			return true;
 		}
 
 		if (typeof obj == "object") {
-			return JSON.stringify(obj) === JSON.stringify(value);
+			return JSON.stringify(obj) === JSON.stringify(ov);
 		}
 
-		return obj === value;
+		return obj === ov;
 	}
 
 	const key = path[0]!;
 	const rest = path.slice(1);
 
 	if (obj == null) {
-		return value == null;
+		return ov == null;
 	}
 
 	if (typeof obj !== "object") {
-		return value == null;
+		return ov == null;
 	}
 
 	if (key in obj) {
-		return deepCompare(obj[key], rest, value);
+		return deepCompare(obj[key], rest, ov);
 	}
 
 	if (Array.isArray(obj)) {
-		return obj.some((o) => deepCompare(o, path, value));
+		return obj.some((o) => deepCompare(o, path, ov));
 	}
 
-	return deepCompare(obj[key], [], value);
+	return ov == null;
 }
