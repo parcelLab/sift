@@ -172,6 +172,16 @@ const cases: BenchCase[] = [
 			{ foo: [{ bar: "baz" }] },
 		],
 	},
+	{
+		name: "multiple conditions",
+		query: { "foo.bar.baz": "qux", "foo.bar.qux": "baz", "foo.bar.bla": "jaz" },
+		input: [
+			{ foo: [{ bar: [{ baz: "qux" }, { qux: "baz" }, { bla: "jaz" }] }] },
+			{},
+			{ foo: "bar" },
+			{ foo: [{ bar: "baz" }] },
+		],
+	},
 ];
 
 warmupBench(cases);
