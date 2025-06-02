@@ -1,48 +1,44 @@
 {
-  "name": "@parcellab/sift",
-  "version": "0.0.1",
-  "description": "mongodb query in javascript",
-  "main": "index.js",
-  "scripts": {
-    "lint": "tsc --noEmit && prettier --check --ignore-unknown .",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest watch",
-    "test:bench": "tsx benchmark/run.ts > benchmark/output.txt",
-    "test:bench:csv": "tsx benchmark/run.ts --csv > benchmark/output.csv",
-    "test:bench:csv:unopt": "tsx --no-opt --no-sparkplug benchmark/run.ts --csv > benchmark/output-unopt.csv",
-    "test:bench:debug": "tsx --trace-deopt --trace-opt benchmark/run.ts"
+  "name": "weiliddat-sift",
+  "description": "MongoDB query filtering in JavaScript",
+  "version": "18.3.1",
+  "repository": "weiliddat/sift.js",
+  "author": {
+    "name": "Chiawei Ong",
+    "email": "chiawei.ong@parcellab.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/parcelLab/sift.git"
-  },
-  "keywords": [
-    "mongo",
-    "sift",
-    "query",
-    "filter"
-  ],
-  "author": "Chiawei Ong <chiawei.ong@parcellab.com>",
+  "main": "./index.js",
+  "types": "./lib/index.d.ts",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/parcelLab/sift/issues"
-  },
-  "homepage": "https://github.com/parcelLab/sift#readme",
-  "devDependencies": {
-    "@tsconfig/node-lts": "^20.1.3",
-    "@tsconfig/node18": "^18.2.4",
-    "@tsconfig/strictest": "^2.0.5",
-    "@types/node": "^20.14.2",
-    "@vitest/coverage-v8": "^1.6.0",
-    "mongodb": "^6.7.0",
-    "prettier": "^3.3.1",
-    "sift": "^17.1.3",
-    "tsx": "^4.13.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
-  },
   "engines": {
-    "node": ">=18"
-  }
+    "node": ">= 18"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.29",
+    "husky": "^9.0.11",
+    "mocha": "^10.4.0",
+    "mongodb": "^6.5.0",
+    "prettier": "^3.2.5",
+    "pretty-quick": "^4.0.0",
+    "typescript": "^5.4.4"
+  },
+  "scripts": {
+    "clean": "rm -rf lib",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
+    "test": "npm run test:spec && npm run test:types",
+    "test:spec": "mocha ./test -R spec",
+    "test:types": "cd test && tsc types.ts --noEmit",
+    "prepublishOnly": "npm run build && npm run test",
+    "prepare": "husky"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ]
 }
