@@ -1,8 +1,11 @@
 {
-  "name": "weiliddat-sift",
+  "name": "@parcellab/sift",
   "description": "MongoDB query filtering in JavaScript",
   "version": "18.3.1",
-  "repository": "weiliddat/sift.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parcelLab/sift.git"
+  },
   "author": {
     "name": "Chiawei Ong",
     "email": "chiawei.ong@parcellab.com"
