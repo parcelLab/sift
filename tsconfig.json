@@ -1,7 +1,12 @@
 {
-  "include": ["src/*.ts", "test/*.ts", "benchmark/*.ts"],
-  "extends": [
-    "@tsconfig/strictest/tsconfig.json",
-    "@tsconfig/node18/tsconfig.json"
-  ]
+  "compilerOptions": {
+    "outDir": "lib",
+    "target": "es6",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "declaration": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["./src/**/*.ts"]
 }
