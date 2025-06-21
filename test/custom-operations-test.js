@@ -11,14 +11,11 @@ describe(__filename + "#", () => {
             return Boolean(params % item);
           },
         },
-      },
+      }
     );
 
     var values = [1, 2, 3, 4, 5];
 
-    assert.equal(
-      JSON.stringify(values.filter(filter)),
-      JSON.stringify([3, 4, 5]),
-    );
+    assert.equal(JSON.stringify(values.filter(filter)), JSON.stringify([3, 4, 5]));
   });
 });

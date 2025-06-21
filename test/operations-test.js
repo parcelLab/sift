@@ -2,11 +2,7 @@ const assert = require("assert");
 const { ObjectId } = require("bson");
 const MongoClient = require("mongodb").MongoClient;
 const { promisify } = require("util");
-const {
-  default: sift,
-  createQueryTester,
-  ...defaultOperations
-} = require("../lib");
+const { default: sift, createQueryTester, ...defaultOperations } = require("../lib");
 
 describe(__filename + "#", function () {
   [
@@ -14,11 +10,7 @@ describe(__filename + "#", function () {
 
     // $eq
     [{ $eq: 5 }, [5, "5", 6], [5], false],
-    [
-      { a: { $eq: { b: 1 } } },
-      [{ a: { b: 1 } }, { a: { b: 1, c: 2 } }],
-      [{ a: { b: 1 } }],
-    ],
+    [{ a: { $eq: { b: 1 } } }, [{ a: { b: 1 } }, { a: { b: 1, c: 2 } }], [{ a: { b: 1 } }]],
     ["5", [5, "5", 6], ["5"], false],
     [false, [false, "false", true], [false], false],
     [true, [1, true], [true], false],
@@ -28,12 +20,7 @@ describe(__filename + "#", function () {
     [{ aaaaa: { $nin: [null] } }, [{ root: { defined: 1337 } }], []],
     [1, [2, 3, 4, 5], [], false],
     [1, [[1]], [[1]], false],
-    [
-      new Date(1),
-      [new Date(), new Date(1), new Date(2), new Date(3)],
-      [new Date(1)],
-      false,
-    ],
+    [new Date(1), [new Date(), new Date(1), new Date(2), new Date(3)], [new Date(1)], false],
 
     // addresses https://github.com/crcn/sift.js/issues/208
     [
@@ -47,21 +34,12 @@ describe(__filename + "#", function () {
       {
         "field.b": null,
       },
-      [
-        { field: {} },
-        { field: null },
-        { field: { b: 0 } },
-        { field: { b: null } },
-      ],
+      [{ field: {} }, { field: null }, { field: { b: 0 } }, { field: { b: null } }],
       [{ field: {} }, { field: null }, { field: { b: null } }],
     ],
 
     // addresses https://github.com/crcn/sift.js/issues/209
-    [
-      { field: null },
-      [{ name: "A" }, { field: null }, { field: 0 }, { field: false }],
-      [{ name: "A" }, { field: null }],
-    ],
+    [{ field: null }, [{ name: "A" }, { field: null }, { field: 0 }, { field: false }], [{ name: "A" }, { field: null }]],
     [/^a/, ["a", "ab", "abc", "b", "bc"], ["a", "ab", "abc"], false],
 
     [
@@ -73,47 +51,18 @@ describe(__filename + "#", function () {
       false,
     ],
 
-    [
-      new ObjectId("54dd5546b1d296a54d152e84"),
-      [new ObjectId(), new ObjectId("54dd5546b1d296a54d152e84")],
-      [new ObjectId("54dd5546b1d296a54d152e84")],
-      false,
-    ],
+    [new ObjectId("54dd5546b1d296a54d152e84"), [new ObjectId(), new ObjectId("54dd5546b1d296a54d152e84")], [new ObjectId("54dd5546b1d296a54d152e84")], false],
 
     // check for exactness
-    [
-      { c: { d: "d" } },
-      [
-        { a: "done", c: { d: "d" } },
-        { c: { d: "d" } },
-        { c: { d: "d", e: "f" } },
-      ],
-      [{ a: "done", c: { d: "d" } }, { c: { d: "d" } }],
-    ],
+    [{ c: { d: "d" } }, [{ a: "done", c: { d: "d" } }, { c: { d: "d" } }, { c: { d: "d", e: "f" } }], [{ a: "done", c: { d: "d" } }, { c: { d: "d" } }]],
 
-    [
-      { a: 1 },
-      [{ a: 1 }, { a: 2 }, { a: 1, b: 2 }],
-      [{ a: 1 }, { a: 1, b: 2 }],
-    ],
+    [{ a: 1 }, [{ a: 1 }, { a: 2 }, { a: 1, b: 2 }], [{ a: 1 }, { a: 1, b: 2 }]],
 
-    [
-      { a: { c: 1 } },
-      [{ a: { c: 1 } }, { a: { c: 1, d: 1 } }],
-      [{ a: { c: 1 } }],
-    ],
+    [{ a: { c: 1 } }, [{ a: { c: 1 } }, { a: { c: 1, d: 1 } }], [{ a: { c: 1 } }]],
 
-    [
-      { a: [1, 2, 3] },
-      [{ a: 1 }, { a: [1, 2] }, { a: [1, 2, 3], c: 2 }],
-      [{ a: [1, 2, 3], c: 2 }],
-    ],
+    [{ a: [1, 2, 3] }, [{ a: 1 }, { a: [1, 2] }, { a: [1, 2, 3], c: 2 }], [{ a: [1, 2, 3], c: 2 }]],
 
-    [
-      { a: [{ b: 1 }, { b: 2 }] },
-      [{ a: [{ b: 1 }, { b: 2 }] }, { a: [{ b: 1 }] }, { a: [{ b: 1 }], b: 2 }],
-      [{ a: [{ b: 1 }, { b: 2 }] }],
-    ],
+    [{ a: [{ b: 1 }, { b: 2 }] }, [{ a: [{ b: 1 }, { b: 2 }] }, { a: [{ b: 1 }] }, { a: [{ b: 1 }], b: 2 }], [{ a: [{ b: 1 }, { b: 2 }] }]],
     [
       {
         educations: {
@@ -151,41 +100,15 @@ describe(__filename + "#", function () {
     // $ne
     [{ $ne: 5 }, [5, "5", 6], ["5", 6], false],
     ,
-    [
-      { field: { $ne: null } },
-      [{ name: "A" }, { field: null }, { field: 0 }, { field: false }],
-      [{ field: 0 }, { field: false }],
-    ],
+    [{ field: { $ne: null } }, [{ name: "A" }, { field: null }, { field: 0 }, { field: false }], [{ field: 0 }, { field: false }]],
     [{ $ne: "5" }, ["5", 6], [6], false],
     [{ $ne: false }, [false], [], false],
     [{ $ne: undefined }, [false, 0, "0", undefined], [false, 0, "0"], false],
     [{ $ne: /^a/ }, ["a", "ab", "abc", "b", "bc"], ["b", "bc"], false],
     [{ $ne: 1 }, [[2], [1]], [[2]], false],
-    [
-      { groups: { $ne: 111 } },
-      [{ groups: [111, 222, 333, 444] }, { groups: [222, 333, 444] }],
-      [{ groups: [222, 333, 444] }],
-    ],
-    [
-      { "groups.name": { $ne: null } },
-      [
-        { groups: [{ name: "bob" }] },
-        { groups: [] },
-        { groups: null },
-        { other: [] },
-      ],
-      [{ groups: [{ name: "bob" }] }, { groups: [] }],
-    ],
-    [
-      { "groups.name": { $eq: null } },
-      [
-        { groups: [{ name: "bob" }] },
-        { groups: [] },
-        { groups: null },
-        { other: [] },
-      ],
-      [{ groups: null }, { other: [] }],
-    ],
+    [{ groups: { $ne: 111 } }, [{ groups: [111, 222, 333, 444] }, { groups: [222, 333, 444] }], [{ groups: [222, 333, 444] }]],
+    [{ "groups.name": { $ne: null } }, [{ groups: [{ name: "bob" }] }, { groups: [] }, { groups: null }, { other: [] }], [{ groups: [{ name: "bob" }] }, { groups: [] }]],
+    [{ "groups.name": { $eq: null } }, [{ groups: [{ name: "bob" }] }, { groups: [] }, { groups: null }, { other: [] }], [{ groups: null }, { other: [] }]],
 
     // $lt
     [{ $lt: 5 }, [3, 4, 5, 6], [3, 4], false],
@@ -193,104 +116,44 @@ describe(__filename + "#", function () {
     [{ $lt: "5" }, [4, 3, 2, 1], [], false],
     [{ $lt: null }, [-3, -4], [], false],
     [{ $lt: new Date() }, [null], [], false],
-    [
-      { $lt: new Date() },
-      [new Date("2010-01-01")],
-      [new Date("2010-01-01")],
-      false,
-    ],
-    [
-      { $lt: new Date(3) },
-      [new Date(1), new Date(2), new Date(3)],
-      [new Date(1), new Date(2)],
-      false,
-    ],
+    [{ $lt: new Date() }, [new Date("2010-01-01")], [new Date("2010-01-01")], false],
+    [{ $lt: new Date(3) }, [new Date(1), new Date(2), new Date(3)], [new Date(1), new Date(2)], false],
 
     // $lte
     [{ $lte: 5 }, [3, 4, 5, 6], [3, 4, 5], false],
     [{ $lte: "5" }, [4, 3, 2, 1], [], false],
     [{ $lte: "5" }, ["4", "3", "2"], ["4", "3", "2"], false],
     [{ ab: { $lte: null } }, [{ ab: 5 }, { cd: 5 }], [{ cd: 5 }], false],
-    [
-      { ab: { $lte: "blue" } },
-      [{ ab: "blue" }, { cd: 5 }],
-      [{ ab: "blue" }],
-      false,
-    ],
-    [
-      { groups: { $lt: 5 } },
-      [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }],
-      [{ groups: [1, 2, 3, 4] }],
-      false,
-    ],
+    [{ ab: { $lte: "blue" } }, [{ ab: "blue" }, { cd: 5 }], [{ ab: "blue" }], false],
+    [{ groups: { $lt: 5 } }, [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }], [{ groups: [1, 2, 3, 4] }], false],
 
     // $gt
     [{ $gt: 5 }, [3, 4, 5, 6], [6], false],
     [{ $gt: null }, [3, 4], [], false],
     [{ $gt: "5" }, [6, 7, 8], [], false],
     [{ $gt: "5" }, ["6", "7", "8"], ["6", "7", "8"], false],
-    [
-      { groups: { $gt: 5 } },
-      [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }],
-      [{ groups: [7, 8] }],
-    ],
+    [{ groups: { $gt: 5 } }, [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }], [{ groups: [7, 8] }]],
 
     // $gte
     [{ $gte: 5 }, [3, 4, 5, 6], [5, 6], false],
     [{ $gte: "5" }, [4, 3, 2, 1], [], false],
     [{ ab: { $gte: null } }, [{ ab: 5 }, { cd: 5 }], [{ cd: 5 }], false],
-    [
-      { ab: { $gte: "blue" } },
-      [{ ab: "blue" }, { cd: 5 }],
-      [{ ab: "blue" }],
-      false,
-    ],
-    [
-      { groups: { $gte: 5 } },
-      [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }],
-      [{ groups: [7, 8] }],
-    ],
+    [{ ab: { $gte: "blue" } }, [{ ab: "blue" }, { cd: 5 }], [{ ab: "blue" }], false],
+    [{ groups: { $gte: 5 } }, [{ groups: [1, 2, 3, 4] }, { groups: [7, 8] }], [{ groups: [7, 8] }]],
 
     // $mod
     [{ $mod: [2, 1] }, [1, 2, 3, 4, 5, 6], [1, 3, 5], false],
-    [
-      { groups: { $mod: [2, 0] } },
-      [{ groups: [1, 2, 3, 4] }, { groups: [7, 9] }],
-      [{ groups: [1, 2, 3, 4] }],
-    ],
+    [{ groups: { $mod: [2, 0] } }, [{ groups: [1, 2, 3, 4] }, { groups: [7, 9] }], [{ groups: [1, 2, 3, 4] }]],
 
     // $exists
     [{ $exists: false }, [0, false, undefined, null], [], false],
-    [
-      { $exists: true },
-      [0, false, undefined, 1, {}],
-      [0, false, undefined, 1, {}],
-      false,
-    ],
-    [
-      { "a.b": { $exists: true } },
-      [{ a: { b: "exists" } }, { a: { c: "does not exist" } }],
-      [{ a: { b: "exists" } }],
-    ],
+    [{ $exists: true }, [0, false, undefined, 1, {}], [0, false, undefined, 1, {}], false],
+    [{ "a.b": { $exists: true } }, [{ a: { b: "exists" } }, { a: { c: "does not exist" } }], [{ a: { b: "exists" } }]],
 
-    [
-      { field: { $exists: false } },
-      [
-        { a: 1 },
-        { a: 2, field: 5 },
-        { a: 3, field: 0 },
-        { a: 4, field: undefined },
-        { a: 5 },
-      ],
-      [{ a: 1 }, { a: 5 }],
-    ],
+    [{ field: { $exists: false } }, [{ a: 1 }, { a: 2, field: 5 }, { a: 3, field: 0 }, { a: 4, field: undefined }, { a: 5 }], [{ a: 1 }, { a: 5 }]],
 
     // based on https://github.com/crcn/sift.js/issues/146
-    [
-      { "formData.kg": { $exists: true } },
-      [{ formData: { kg: null } }, { a: 1 }],
-      [{ formData: { kg: null } }],
-    ],
+    [{ "formData.kg": { $exists: true } }, [{ formData: { kg: null } }, { a: 1 }], [{ formData: { kg: null } }]],
 
     // https://github.com/crcn/sift.js/issues/263
     [
@@ -313,26 +176,10 @@ describe(__filename + "#", function () {
     [{ $in: [0, false, 1, "1"] }, [0, 1, 2, 3, 4, false], [0, 1, false], false],
     [{ $in: [1, "1", "2"] }, ["1", "2", "3"], ["1", "2"], false],
     [{ $in: [new Date(1)] }, [new Date(1), new Date(2)], [new Date(1)], false],
-    [
-      { a: { $in: [1, 2, 3, 4] } },
-      [{ a: [3, 4] }, { a: [5, 6] }],
-      [{ a: [3, 4] }],
-    ],
-    [
-      { "a.b.status": { $in: [0] } },
-      [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }],
-      [{ a: { b: [{ status: 0 }] } }],
-    ],
-    [
-      { "a.b.status": { $in: [0, 2] } },
-      [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }],
-      [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }],
-    ],
-    [
-      { x: { $in: [/.*aaa.*/, /.*bbb.*/] } },
-      [{ x: { b: "aaa" } }, { x: "bbb" }, { x: "ccc" }, { x: "aaa" }],
-      [{ x: "bbb" }, { x: "aaa" }],
-    ],
+    [{ a: { $in: [1, 2, 3, 4] } }, [{ a: [3, 4] }, { a: [5, 6] }], [{ a: [3, 4] }]],
+    [{ "a.b.status": { $in: [0] } }, [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }], [{ a: { b: [{ status: 0 }] } }]],
+    [{ "a.b.status": { $in: [0, 2] } }, [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }], [{ a: { b: [{ status: 0 }] } }, { a: { b: [{ status: 2 }] } }]],
+    [{ x: { $in: [/.*aaa.*/, /.*bbb.*/] } }, [{ x: { b: "aaa" } }, { x: "bbb" }, { x: "ccc" }, { x: "aaa" }], [{ x: "bbb" }, { x: "aaa" }]],
     // $in: primitive
     [{ a: { $in: 1 } }, [{ a: 1 }, { a: 2 }], [{ a: 1 }]],
 
@@ -340,25 +187,13 @@ describe(__filename + "#", function () {
     [{ $nin: [0, false, 1, "1"] }, [0, 1, 2, 3, 4, false], [2, 3, 4], false],
     [{ $nin: [1, "1", "2"] }, ["1", "2", "3"], ["3"], false],
     [{ $nin: [new Date(1)] }, [new Date(1), new Date(2)], [new Date(2)], false],
-    [
-      { "root.notDefined": { $nin: [1, 2, 3] } },
-      [{ root: { defined: 1337 } }],
-      [{ root: { defined: 1337 } }],
-    ],
-    [
-      { "root.notDefined": { $nin: [1, 2, 3, null] } },
-      [{ root: { defined: 1337 } }],
-      [],
-    ],
+    [{ "root.notDefined": { $nin: [1, 2, 3] } }, [{ root: { defined: 1337 } }], [{ root: { defined: 1337 } }]],
+    [{ "root.notDefined": { $nin: [1, 2, 3, null] } }, [{ root: { defined: 1337 } }], []],
     [{ aaaaa: { $nin: [null] } }, [{ root: { defined: 1337 } }], []],
     // $nin: primitive
     [{ a: { $nin: 1 } }, [{ a: 1 }, { a: 2 }], [{ a: 2 }]],
 
-    [
-      { x: { $nin: [/.*aaa.*/, /.*bbb.*/] } },
-      [{ x: { b: "aaa" } }, { x: "bbb" }, { x: "ccc" }, { x: "aaa" }],
-      [{ x: { b: "aaa" } }, { x: "ccc" }],
-    ],
+    [{ x: { $nin: [/.*aaa.*/, /.*bbb.*/] } }, [{ x: { b: "aaa" } }, { x: "bbb" }, { x: "ccc" }, { x: "aaa" }], [{ x: { b: "aaa" } }, { x: "ccc" }]],
 
     // $not
     [{ $not: false }, [0, false], [0], false],
@@ -485,29 +320,18 @@ describe(__filename + "#", function () {
     // $or
     [{ $or: [1, 2, 3] }, [1, 2, 3, 4], [1, 2, 3], false],
     [{ $or: [{ $ne: 1 }, 2] }, [1, 2, 3, 4, 5, 6], [2, 3, 4, 5, 6], false],
-    [
-      { $or: [{ a: 1 }, { b: 1 }] },
-      [{ a: 1, b: 2 }, { a: 1 }],
-      [{ a: 1, b: 2 }, { a: 1 }],
-    ],
+    [{ $or: [{ a: 1 }, { b: 1 }] }, [{ a: 1, b: 2 }, { a: 1 }], [{ a: 1, b: 2 }, { a: 1 }]],
 
     // $nor
     [{ $nor: [1, 2, 3] }, [1, 2, 3, 4], [4], false],
     [{ $nor: [{ $ne: 1 }, 2] }, [1, 2, 3, 4, 5, 6], [1], false],
-    [
-      { $nor: [{ a: 1 }, { b: 1 }] },
-      [{ a: 1, b: 2 }, { a: 1 }, { c: 1 }],
-      [{ c: 1 }],
-    ],
+    [{ $nor: [{ a: 1 }, { b: 1 }] }, [{ a: 1, b: 2 }, { a: 1 }, { c: 1 }], [{ c: 1 }]],
 
     // $and
     [{ $and: [{ $gt: 1 }, { $lt: 4 }] }, [1, 2, 3, 4], [2, 3], false],
     [
       {
-        $and: [
-          { field: { $not: { $type: String } } },
-          { field: { $ne: null } },
-        ],
+        $and: [{ field: { $not: { $type: String } } }, { field: { $ne: null } }],
       },
       [
         { a: 1, field: 1 },
@@ -518,35 +342,13 @@ describe(__filename + "#", function () {
     ],
 
     // $regex
-    [
-      { $regex: "^a" },
-      ["a", "ab", "abc", "bc", "bcd"],
-      ["a", "ab", "abc"],
-      false,
-    ],
-    [
-      { a: { $regex: "b|c" } },
-      [{ a: ["b"] }, { a: ["c"] }, { a: "c" }, { a: "d" }],
-      [{ a: ["b"] }, { a: ["c"] }, { a: "c" }],
-    ],
-    [
-      { folder: { $regex: "^[0-9]{4}$" } },
-      [{ folder: ["1234", "3212"] }],
-      [{ folder: ["1234", "3212"] }],
-    ],
+    [{ $regex: "^a" }, ["a", "ab", "abc", "bc", "bcd"], ["a", "ab", "abc"], false],
+    [{ a: { $regex: "b|c" } }, [{ a: ["b"] }, { a: ["c"] }, { a: "c" }, { a: "d" }], [{ a: ["b"] }, { a: ["c"] }, { a: "c" }]],
+    [{ folder: { $regex: "^[0-9]{4}$" } }, [{ folder: ["1234", "3212"] }], [{ folder: ["1234", "3212"] }]],
 
     // $options
-    [
-      { $regex: "^a", $options: "i" },
-      ["a", "Ab", "abc", "bc", "bcd"],
-      ["a", "Ab", "abc"],
-      false,
-    ],
-    [
-      { text: { $regex: ".*lis.*", $options: "i" } },
-      [{ text: ["Bob", "Melissa", "Joe", "Sherry"] }],
-      [{ text: ["Bob", "Melissa", "Joe", "Sherry"] }],
-    ],
+    [{ $regex: "^a", $options: "i" }, ["a", "Ab", "abc", "bc", "bcd"], ["a", "Ab", "abc"], false],
+    [{ text: { $regex: ".*lis.*", $options: "i" } }, [{ text: ["Bob", "Melissa", "Joe", "Sherry"] }], [{ text: ["Bob", "Melissa", "Joe", "Sherry"] }]],
 
     // undefined
     [{ $regex: "a" }, [undefined, null, true, false, 0, "aa"], ["aa"], false],
@@ -554,11 +356,7 @@ describe(__filename + "#", function () {
     [/.+/, [undefined, null, true, false, 0, "aa", {}], ["aa"], false],
 
     // Multiple conditions on an undefined root
-    [
-      { "a.b": { $exists: true, $nin: [null] } },
-      [{ a: { b: "exists" } }, { a: { c: "does not exist" } }],
-      [{ a: { b: "exists" } }],
-    ],
+    [{ "a.b": { $exists: true, $nin: [null] } }, [{ a: { b: "exists" } }, { a: { c: "does not exist" } }], [{ a: { b: "exists" } }]],
 
     // $where
     [
@@ -575,35 +373,10 @@ describe(__filename + "#", function () {
     [{ $where: "obj.v === 1" }, [{ v: 1 }, { v: 2 }], [{ v: 1 }]],
 
     // $elemMatch
-    [
-      { a: { $elemMatch: { b: 1, c: 2 } } },
-      [
-        { a: { b: 1, c: 2 } },
-        { a: [{ b: 1, c: 2, d: 3 }] },
-        { a: { b: 2, c: 3 } },
-      ],
-      [{ a: [{ b: 1, c: 2, d: 3 }] }],
-    ],
-    [
-      { a: { $elemMatch: { b: 2, c: { $gt: 2 } } } },
-      [
-        { a: [{ b: 1, c: 2 }] },
-        { a: [{ b: 1, c: 3, d: 3 }] },
-        [{ a: [{ b: 2, c: 3 }] }],
-      ],
-      [[{ a: [{ b: 2, c: 3 }] }]],
-      false,
-    ],
-    [
-      { tags: { $all: [{ $elemMatch: { a: 1 } }] } },
-      [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }],
-      [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }],
-    ],
-    [
-      { tags: { $elemMatch: { a: 1 } } },
-      [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }],
-      [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }],
-    ],
+    [{ a: { $elemMatch: { b: 1, c: 2 } } }, [{ a: { b: 1, c: 2 } }, { a: [{ b: 1, c: 2, d: 3 }] }, { a: { b: 2, c: 3 } }], [{ a: [{ b: 1, c: 2, d: 3 }] }]],
+    [{ a: { $elemMatch: { b: 2, c: { $gt: 2 } } } }, [{ a: [{ b: 1, c: 2 }] }, { a: [{ b: 1, c: 3, d: 3 }] }, [{ a: [{ b: 2, c: 3 }] }]], [[{ a: [{ b: 2, c: 3 }] }]], false],
+    [{ tags: { $all: [{ $elemMatch: { a: 1 } }] } }, [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }], [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }]],
+    [{ tags: { $elemMatch: { a: 1 } } }, [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }], [{ tags: [{ a: 1 }] }, { tags: [{ a: 1 }, { b: 1 }] }]],
     [
       {
         moves: {
@@ -682,30 +455,18 @@ describe(__filename + "#", function () {
       },
       [
         {
-          areas: [
-            { type: "roof" },
-            { type: "driveway", propertyLines: ["green"], elements: ["tiles"] },
-          ],
+          areas: [{ type: "roof" }, { type: "driveway", propertyLines: ["green"], elements: ["tiles"] }],
         },
         {
-          areas: [
-            { type: "driveway", propertyLines: ["green"], elements: ["tiles"] },
-            { type: "roof" },
-          ],
+          areas: [{ type: "driveway", propertyLines: ["green"], elements: ["tiles"] }, { type: "roof" }],
         },
       ],
       [
         {
-          areas: [
-            { type: "roof" },
-            { type: "driveway", propertyLines: ["green"], elements: ["tiles"] },
-          ],
+          areas: [{ type: "roof" }, { type: "driveway", propertyLines: ["green"], elements: ["tiles"] }],
         },
         {
-          areas: [
-            { type: "driveway", propertyLines: ["green"], elements: ["tiles"] },
-            { type: "roof" },
-          ],
+          areas: [{ type: "driveway", propertyLines: ["green"], elements: ["tiles"] }, { type: "roof" }],
         },
       ],
     ],
@@ -738,24 +499,9 @@ describe(__filename + "#", function () {
     ],
 
     // dot-notation
-    [
-      { "a.b": /c/ },
-      [{ a: { b: "c" } }, { a: { b: "cd" } }, { a: { b: "e" } }],
-      [{ a: { b: "c" } }, { a: { b: "cd" } }],
-    ],
-    [
-      { "foo.0": "baz" },
-      [{ foo: ["bar", "baz"] }, { foo: ["baz", "bar"] }],
-      [{ foo: ["baz", "bar"] }],
-    ],
-    [
-      { "foo.0.name": "baz" },
-      [
-        { foo: [{ name: "bar" }, { name: "baz" }] },
-        { foo: [{ name: "baz" }, { name: "bar" }] },
-      ],
-      [{ foo: [{ name: "baz" }, { name: "bar" }] }],
-    ],
+    [{ "a.b": /c/ }, [{ a: { b: "c" } }, { a: { b: "cd" } }, { a: { b: "e" } }], [{ a: { b: "c" } }, { a: { b: "cd" } }]],
+    [{ "foo.0": "baz" }, [{ foo: ["bar", "baz"] }, { foo: ["baz", "bar"] }], [{ foo: ["baz", "bar"] }]],
+    [{ "foo.0.name": "baz" }, [{ foo: [{ name: "bar" }, { name: "baz" }] }, { foo: [{ name: "baz" }, { name: "bar" }] }], [{ foo: [{ name: "baz" }, { name: "bar" }] }]],
 
     // object.toString() tests
     // [
@@ -798,10 +544,7 @@ describe(__filename + "#", function () {
     // based on https://gist.github.com/jdnichollsc/00ea8cf1204b17d9fb9a991fbd1dfee6
     [
       {
-        $and: [
-          { "a.s": { $lte: new Date("2017-01-29T05:00:00.000Z") } },
-          { "a.e": { $gte: new Date("2017-01-08T05:00:00.000Z") } },
-        ],
+        $and: [{ "a.s": { $lte: new Date("2017-01-29T05:00:00.000Z") } }, { "a.e": { $gte: new Date("2017-01-08T05:00:00.000Z") } }],
       },
       [
         {
@@ -828,19 +571,13 @@ describe(__filename + "#", function () {
 
     it(i + ": " + JSON.stringify(filter), async function () {
       // out of the box
-      assert.equal(
-        JSON.stringify(array.filter(sift(filter))),
-        JSON.stringify(matchArray),
-      );
+      assert.equal(JSON.stringify(array.filter(sift(filter))), JSON.stringify(matchArray));
 
       // custom
       const tester = createQueryTester(filter, {
         operations: defaultOperations,
       });
-      assert.equal(
-        JSON.stringify(array.filter(tester)),
-        JSON.stringify(matchArray),
-      );
+      assert.equal(JSON.stringify(array.filter(tester)), JSON.stringify(matchArray));
 
       if (process.env.VALIDATE_WITH_MONGODB && testWithMongo !== false) {
         await testNativeQuery(filter, array, matchArray);
@@ -872,9 +609,9 @@ async function testNativeQuery(filter, array, matchArray) {
         const copy = { ...result };
         delete copy._id;
         return copy;
-      }),
+      })
     ),
-    JSON.stringify(matchArray),
+    JSON.stringify(matchArray)
   );
 
   await promisify(db.dropDatabase.bind(db))();

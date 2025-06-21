@@ -38,10 +38,7 @@ describe(__filename + "#", () => {
         var filter = asyncFilter(sift(query));
         filter(values).then(function (filteredValues) {
           try {
-            assert.equal(
-              JSON.stringify(filteredValues),
-              JSON.stringify(result),
-            );
+            assert.equal(JSON.stringify(filteredValues), JSON.stringify(result));
             resolve();
           } catch (e) {
             reject(e);

@@ -1,68 +1,68 @@
 import { BaseOperation, EqualsOperation, Options, Operation, Query, NamedGroupOperation } from "./core";
 import { Key } from "./utils";
 declare class $Ne extends BaseOperation<any> {
-    readonly propop = true;
-    private _test;
-    init(): void;
-    reset(): void;
-    next(item: any): void;
+  readonly propop = true;
+  private _test;
+  init(): void;
+  reset(): void;
+  next(item: any): void;
 }
 declare class $ElemMatch extends BaseOperation<Query<any>> {
-    readonly propop = true;
-    private _queryOperation;
-    init(): void;
-    reset(): void;
-    next(item: any): void;
+  readonly propop = true;
+  private _queryOperation;
+  init(): void;
+  reset(): void;
+  next(item: any): void;
 }
 declare class $Not extends BaseOperation<Query<any>> {
-    readonly propop = true;
-    private _queryOperation;
-    init(): void;
-    reset(): void;
-    next(item: any, key: Key, owner: any, root: boolean): void;
+  readonly propop = true;
+  private _queryOperation;
+  init(): void;
+  reset(): void;
+  next(item: any, key: Key, owner: any, root: boolean): void;
 }
 export declare class $Size extends BaseOperation<any> {
-    readonly propop = true;
-    init(): void;
-    next(item: any): void;
+  readonly propop = true;
+  init(): void;
+  next(item: any): void;
 }
 declare class $Or extends BaseOperation<any> {
-    readonly propop = false;
-    private _ops;
-    init(): void;
-    reset(): void;
-    next(item: any, key: Key, owner: any): void;
+  readonly propop = false;
+  private _ops;
+  init(): void;
+  reset(): void;
+  next(item: any, key: Key, owner: any): void;
 }
 declare class $Nor extends $Or {
-    readonly propop = false;
-    next(item: any, key: Key, owner: any): void;
+  readonly propop = false;
+  next(item: any, key: Key, owner: any): void;
 }
 declare class $In extends BaseOperation<any> {
-    readonly propop = true;
-    private _testers;
-    init(): void;
-    next(item: any, key: Key, owner: any): void;
+  readonly propop = true;
+  private _testers;
+  init(): void;
+  next(item: any, key: Key, owner: any): void;
 }
 declare class $Nin extends BaseOperation<any> {
-    readonly propop = true;
-    private _in;
-    constructor(params: any, ownerQuery: any, options: Options, name: string);
-    next(item: any, key: Key, owner: any, root: boolean): void;
-    reset(): void;
+  readonly propop = true;
+  private _in;
+  constructor(params: any, ownerQuery: any, options: Options, name: string);
+  next(item: any, key: Key, owner: any, root: boolean): void;
+  reset(): void;
 }
 declare class $Exists extends BaseOperation<boolean> {
-    readonly propop = true;
-    next(item: any, key: Key, owner: any, root: boolean, leaf?: boolean): void;
+  readonly propop = true;
+  next(item: any, key: Key, owner: any, root: boolean, leaf?: boolean): void;
 }
 declare class $And extends NamedGroupOperation {
-    readonly propop = false;
-    constructor(params: Query<any>[], owneryQuery: Query<any>, options: Options, name: string);
-    next(item: any, key: Key, owner: any, root: boolean): void;
+  readonly propop = false;
+  constructor(params: Query<any>[], owneryQuery: Query<any>, options: Options, name: string);
+  next(item: any, key: Key, owner: any, root: boolean): void;
 }
 declare class $All extends NamedGroupOperation {
-    readonly propop = true;
-    constructor(params: Query<any>[], owneryQuery: Query<any>, options: Options, name: string);
-    next(item: any, key: Key, owner: any, root: boolean): void;
+  readonly propop = true;
+  constructor(params: Query<any>[], owneryQuery: Query<any>, options: Options, name: string);
+  next(item: any, key: Key, owner: any, root: boolean): void;
 }
 export declare const $eq: (params: any, owneryQuery: Query<any>, options: Options) => EqualsOperation<any>;
 export declare const $ne: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $Ne;

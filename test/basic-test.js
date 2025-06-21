@@ -35,18 +35,10 @@ describe(__filename + "#", function () {
 
   it("can match empty arrays", function () {
     var statusQuery = {
-      $or: [
-        { status: { $exists: false } },
-        { status: [] },
-        { status: { $in: ["urgent", "completed", "today"] } },
-      ],
+      $or: [{ status: { $exists: false } }, { status: [] }, { status: { $in: ["urgent", "completed", "today"] } }],
     };
 
-    var filtered = [
-      { status: [] },
-      { status: ["urgent"] },
-      { status: ["nope"] },
-    ].filter(sift(statusQuery));
+    var filtered = [{ status: [] }, { status: ["urgent"] }, { status: ["nope"] }].filter(sift(statusQuery));
 
     assert.equal(filtered.length, 2);
   });
@@ -196,10 +188,7 @@ describe(__filename + "#", function () {
 
     var results = product.quantities.filter(
       sift({
-        $and: [
-          { "period.startDate": { $lte: period.endDate } },
-          { "period.endDate": { $gte: period.startDate } },
-        ],
+        $and: [{ "period.startDate": { $lte: period.endDate } }, { "period.endDate": { $gte: period.startDate } }],
       })
     );
 
@@ -246,10 +235,7 @@ describe(__filename + "#", function () {
 
   it("Works with Object ids", () => {
     const test1 = sift({
-      $in: [
-        new ObjectId("54dd5546b1d296a54d152e84"),
-        new ObjectId("54dd5546b1d296a54d152e85"),
-      ],
+      $in: [new ObjectId("54dd5546b1d296a54d152e84"), new ObjectId("54dd5546b1d296a54d152e85")],
     });
 
     assert.equal(test1(new ObjectId("54dd5546b1d296a54d152e84")), true);
@@ -327,10 +313,7 @@ describe(__filename + "#", function () {
       },
     });
 
-    const items = [
-      { groups: [{ id: 1, status: "review" }] },
-      { groups: [{ id: 1, status: "done" }] },
-    ];
+    const items = [{ groups: [{ id: 1, status: "review" }] }, { groups: [{ id: 1, status: "done" }] }];
 
     assert.equal(test(items[0]), true);
     assert.equal(test(items[1]), false);
@@ -513,10 +496,7 @@ describe(__filename + "#", function () {
 
   it("Throws error if operations are mixed with props", () => {
     assert.throws(() => {
-      createQueryTester(
-        { name: { eq: 5, prop: 100 } },
-        { operations: { eq: $eq } }
-      );
+      createQueryTester({ name: { eq: 5, prop: 100 } }, { operations: { eq: $eq } });
     }, new Error("Property queries must contain only operations, or exact objects."));
   });
 

@@ -37,7 +37,7 @@ __1["default"]({ name: { $gt: "5" } });
   __1["default"]({
     string: "a",
     number: 1,
-  }),
+  })
 );
 var obj = {
   string: "foo",
@@ -66,7 +66,7 @@ var obj = {
     number: {
       $in: [123, 2, 3], // Type '{ $in: number[]; }' is not assignable to type 'number | alueQuery<number>   undefined'. Object literal may only specify known properties, and '$in' does not exist in type 'ValueQuery<number>'.
     },
-  }),
+  })
 );
 var a = [obj].some(
   __1["default"]({
@@ -80,21 +80,14 @@ var a = [obj].some(
         biz: 5,
       },
     },
-  }),
+  })
 ); // returns false
 
-[
-  { tags: ["books", "programming", "travel"] },
-  { tags: ["travel", "cooking"] },
-].filter(__1["default"]({ tags: { $all: ["books", "programming"] } }));
+[{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(__1["default"]({ tags: { $all: ["books", "programming"] } }));
 ["craig", "john", "jake"].filter(__1["default"](/^j/));
-["craig", "tim", "jake"].filter(
-  __1["default"]({ $not: { $in: ["craig", "tim"] } }),
-);
+["craig", "tim", "jake"].filter(__1["default"]({ $not: { $in: ["craig", "tim"] } }));
 //intersecting arrays
-var result1 = ["hello", "sifted", "array!"].filter(
-  __1["default"]({ $in: ["hello", "world"] }),
-); //['hello']
+var result1 = ["hello", "sifted", "array!"].filter(__1["default"]({ $in: ["hello", "world"] })); //['hello']
 //regexp filter
 var result2 = ["craig", "john", "jake"].filter(__1["default"](/^j/)); //['john','jake']
 // function filter
@@ -119,40 +112,20 @@ var testFilter = __1["default"]({
 testFilter({ name: "sarah" }); //true
 testFilter({ name: "tim" }); //false
 [3, 4, 5, 6, 7].filter(__1["default"]({ $exists: true })); // [6, 7]
-__1.createQueryTester(
-  { $eq: 5 },
-  { operations: { $eq: __1.$eq, $in: __1.$in } },
-);
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  __1["default"]({ $in: ["Costa Rica", "Brazil"] }),
-);
-[{ name: "Craig", location: "Brazil" }].filter(
-  __1["default"]({ location: { $in: ["Costa Rica", "Brazil"] } }),
-);
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  __1["default"]({ $nin: ["Costa Rica", "Brazil"] }),
-);
-[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(
-  __1["default"]({ city: { $exists: false } }),
-);
+__1.createQueryTester({ $eq: 5 }, { operations: { $eq: __1.$eq, $in: __1.$in } });
+["Brazil", "Haiti", "Peru", "Chile"].filter(__1["default"]({ $in: ["Costa Rica", "Brazil"] }));
+[{ name: "Craig", location: "Brazil" }].filter(__1["default"]({ location: { $in: ["Costa Rica", "Brazil"] } }));
+["Brazil", "Haiti", "Peru", "Chile"].filter(__1["default"]({ $nin: ["Costa Rica", "Brazil"] }));
+[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(__1["default"]({ city: { $exists: false } }));
 [0, 1, 2, 3].filter(__1["default"]({ $gte: 2 }));
 [0, 1, 2, 3].filter(__1["default"]({ $gt: 2 }));
 [0, 1, 2, 3].filter(__1["default"]({ $lte: 2 }));
 [0, 1, 2, 3].filter(__1["default"]({ $lt: 2 }));
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  __1["default"]({ state: { $eq: "MN" } }),
-);
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  __1["default"]({ state: "MN" }),
-);
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  __1["default"]({ state: { $ne: "MN" } }),
-);
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(__1["default"]({ state: { $eq: "MN" } }));
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(__1["default"]({ state: "MN" }));
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(__1["default"]({ state: { $ne: "MN" } }));
 [100, 200, 300, 400, 500, 600].filter(__1["default"]({ $mod: [3, 0] }));
-[
-  { tags: ["books", "programming", "travel"] },
-  { tags: ["travel", "cooking"] },
-].filter(__1["default"]({ tags: { $all: ["books", "programming"] } }));
+[{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(__1["default"]({ tags: { $all: ["books", "programming"] } }));
 [
   { name: "Craig", state: "MN" },
   { name: "Tim", state: "MN" },
@@ -168,26 +141,18 @@ __1.createQueryTester(
   { name: "Tim", state: "MN" },
   { name: "Joe", state: "CA" },
 ].filter(__1["default"]({ $nor: [{ name: "Craig" }, { state: "MN" }] }));
-[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(
-  __1["default"]({ tags: { $size: 2 } }),
-);
+[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(__1["default"]({ tags: { $size: 2 } }));
 [new Date(), 4342, "hello world"].filter(__1["default"]({ $type: Date })); //returns single date
 [new Date(), 4342, "hello world"].filter(__1["default"]({ $type: String })); //returns ['hello world']
-["frank", "fred", "sam", "frost"].filter(
-  __1["default"]({ $regex: /^f/i, $nin: ["frank"] }),
-); // ["fred", "frost"]
-["frank", "fred", "sam", "frost"].filter(
-  __1["default"]({ $regex: "^f", $options: "i", $nin: ["frank"] }),
-); // ["fred", "frost"]
-[{ name: "frank" }, { name: "joe" }].filter(
-  __1["default"]({ $where: "this.name === 'frank'" }),
-); // ["frank"]
+["frank", "fred", "sam", "frost"].filter(__1["default"]({ $regex: /^f/i, $nin: ["frank"] })); // ["fred", "frost"]
+["frank", "fred", "sam", "frost"].filter(__1["default"]({ $regex: "^f", $options: "i", $nin: ["frank"] })); // ["fred", "frost"]
+[{ name: "frank" }, { name: "joe" }].filter(__1["default"]({ $where: "this.name === 'frank'" })); // ["frank"]
 [{ name: "frank" }, { name: "joe" }].filter(
   __1["default"]({
     $where: function () {
       return this.name === "frank";
     },
-  }),
+  })
 ); // ["frank"]
 var bills = [
   {
@@ -224,16 +189,14 @@ var result = bills.filter(
         value: { $gt: 1000 },
       },
     },
-  }),
+  })
 ); // {month:'august', casts:[{id:3, value: 1000},{id: 4, value: 4000}]}
 [{ name: "frank" }, { name: "joe" }].filter(
   __1["default"]({
     $where: function () {
       return this.name === "frank";
     },
-  }),
+  })
 );
-["craig", "tim", "jake"].filter(
-  __1["default"]({ $not: { $in: ["craig", "tim"] } }),
-); //['jake']
+["craig", "tim", "jake"].filter(__1["default"]({ $not: { $in: ["craig", "tim"] } })); //['jake']
 ["craig", "tim", "jake"].filter(__1["default"]({ $not: { $size: 5 } })); //['tim','jake']

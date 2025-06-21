@@ -1,0 +1,12 @@
+printWidth: 180
+trailingComma: "es5"
+arrowParens: "always"
+singleQuote: false
+semi: true
+
+overrides:
+  - files:
+      - "**/*.yml"
+      - "**/*.yaml"
+    options:
+      singleQuote: false

@@ -65,7 +65,7 @@ describe(__filename + "#", function () {
             $in: ["brazil"],
           },
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 1);
   });
@@ -78,7 +78,7 @@ describe(__filename + "#", function () {
             $all: ["brazil", "haiti", "costa rica"],
           },
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 1);
     assert.equal(sifted[0], topic[0]);
@@ -91,7 +91,7 @@ describe(__filename + "#", function () {
             $in: ["photography", "cooking", "biking"],
           },
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 2);
   });
@@ -110,7 +110,7 @@ describe(__filename + "#", function () {
             $exists: true,
           },
         },
-      }),
+      })
     );
 
     assert.equal(sifted.length, 2);
@@ -124,7 +124,7 @@ describe(__filename + "#", function () {
             $in: ["costa rica"],
           },
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 0);
   });
@@ -132,7 +132,7 @@ describe(__filename + "#", function () {
     var sifted = topic.filter(
       sift({
         "hobbies.name": "photography",
-      }),
+      })
     );
     assert.equal(sifted.length, 2);
   });
@@ -142,7 +142,7 @@ describe(__filename + "#", function () {
         "hobbies.name": {
           $in: ["photography", "cooking", "biking"],
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 2);
   });
@@ -157,7 +157,7 @@ describe(__filename + "#", function () {
         "address.phone": {
           $exists: true,
         },
-      }),
+      })
     );
     assert.equal(sifted.length, 2);
   });
@@ -174,8 +174,8 @@ describe(__filename + "#", function () {
           select: function (item) {
             return item.hobbies;
           },
-        },
-      ),
+        }
+      )
     );
     assert.equal(sifted.length, 2);
   });
@@ -315,10 +315,7 @@ describe(__filename + "#", function () {
       let sifted2 = objects.filter(sift(q2));
       assert.deepEqual(sifted2, [objects[1]]);
 
-      objects = [
-        { things: new ArrayWithGetters({ map: "USA" }, { map: "DEU" }) },
-        { things: new ArrayWithGetters({ map: "USA" }, { map: "MYS" }) },
-      ];
+      objects = [{ things: new ArrayWithGetters({ map: "USA" }, { map: "DEU" }) }, { things: new ArrayWithGetters({ map: "USA" }, { map: "MYS" }) }];
 
       let q3 = { "things.map": "USA" };
       let sifted3 = objects.filter(sift(q3));
@@ -353,10 +350,7 @@ describe(__filename + "#", function () {
             return Reflect.ownKeys(target);
           },
           getOwnPropertyDescriptor(target, prop) {
-            if (
-              Array.isArray(target) &&
-              (prop === "@firstId" || prop === "@lastId")
-            ) {
+            if (Array.isArray(target) && (prop === "@firstId" || prop === "@lastId")) {
               return {
                 configurable: true,
                 enumerable: true,

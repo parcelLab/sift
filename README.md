@@ -23,9 +23,7 @@
 import sift from "sift";
 
 // intersecting arrays
-const result1 = ["hello", "sifted", "array!"].filter(
-  sift({ $in: ["hello", "world"] }),
-); // ['hello']
+const result1 = ["hello", "sifted", "array!"].filter(sift({ $in: ["hello", "world"] })); // ['hello']
 
 // regexp filter
 const result2 = ["craig", "john", "jake"].filter(sift(/^j/)); //['john','jake']
@@ -75,7 +73,6 @@ const test = sift({ $gt: 5 });
 
 console.log(test(6)); // true
 console.log(test(4)); // false
-
 [3, 4, 5, 6, 7].filter(test); // [6, 7]
 ```
 
@@ -100,14 +97,10 @@ const filter = createQueryTester(
   {
     operations: {
       $something(mod, ownerQuery, options) {
-        return createEqualsOperation(
-          (value) => value % mod === 0,
-          ownerQuery,
-          options,
-        );
+        return createEqualsOperation((value) => value % mod === 0, ownerQuery, options);
       },
     },
-  },
+  }
 );
 filter(10); // true
 filter(11); // false
@@ -125,17 +118,13 @@ Intersecting two arrays:
 
 ```javascript
 // filtered: ['Brazil']
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  sift({ $in: ["Costa Rica", "Brazil"] }),
-);
+["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $in: ["Costa Rica", "Brazil"] }));
 ```
 
 Here's another example. This acts more like the \$or operator:
 
 ```javascript
-[{ name: "Craig", location: "Brazil" }].filter(
-  sift({ location: { $in: ["Costa Rica", "Brazil"] } }),
-);
+[{ name: "Craig", location: "Brazil" }].filter(sift({ location: { $in: ["Costa Rica", "Brazil"] } }));
 ```
 
 ### \$nin
@@ -144,9 +133,7 @@ Opposite of \$in:
 
 ```javascript
 // filtered: ['Haiti','Peru','Chile']
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  sift({ $nin: ["Costa Rica", "Brazil"] }),
-);
+["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $nin: ["Costa Rica", "Brazil"] }));
 ```
 
 ### \$exists
@@ -162,9 +149,7 @@ You can also filter out values that don't exist
 
 ```javascript
 // filtered: [{ name: "Tim" }]
-[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(
-  sift({ city: { $exists: false } }),
-);
+[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(sift({ city: { $exists: false } }));
 ```
 
 ### \$gte
@@ -209,18 +194,14 @@ Checks if `query === value`. Note that **\$eq can be omitted**. For **\$eq**, an
 
 ```javascript
 // filtered: [{ state: 'MN' }]
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: { $eq: "MN" } }),
-);
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: { $eq: "MN" } }));
 ```
 
 Or:
 
 ```javascript
 // filtered: [{ state: 'MN' }]
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: "MN" }),
-);
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: "MN" }));
 ```
 
 ### \$ne
@@ -229,9 +210,7 @@ Checks if `query !== value`.
 
 ```javascript
 // filtered: [{ state: 'CA' }, { state: 'WI'}]
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: { $ne: "MN" } }),
-);
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: { $ne: "MN" } }));
 ```
 
 ### \$mod
@@ -249,10 +228,7 @@ values must match **everything** in array:
 
 ```javascript
 // filtered: [ { tags: ['books','programming','travel' ]} ]
-[
-  { tags: ["books", "programming", "travel"] },
-  { tags: ["travel", "cooking"] },
-].filter(sift({ tags: { $all: ["books", "programming"] } }));
+[{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(sift({ tags: { $all: ["books", "programming"] } }));
 ```
 
 ### \$and
@@ -301,9 +277,7 @@ Matches an array - must match given size:
 
 ```javascript
 // filtered: ['food','cooking']
-[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(
-  sift({ tags: { $size: 2 } }),
-);
+[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(sift({ tags: { $size: 2 } }));
 ```
 
 ### \$type
@@ -320,12 +294,8 @@ Matches a values based on the type
 Matches values based on the given regular expression
 
 ```javascript
-["frank", "fred", "sam", "frost"].filter(
-  sift({ $regex: /^f/i, $nin: ["frank"] }),
-); // ["fred", "frost"]
-["frank", "fred", "sam", "frost"].filter(
-  sift({ $regex: "^f", $options: "i", $nin: ["frank"] }),
-); // ["fred", "frost"]
+["frank", "fred", "sam", "frost"].filter(sift({ $regex: /^f/i, $nin: ["frank"] })); // ["fred", "frost"]
+["frank", "fred", "sam", "frost"].filter(sift({ $regex: "^f", $options: "i", $nin: ["frank"] })); // ["fred", "frost"]
 ```
 
 ### \$where
@@ -333,15 +303,13 @@ Matches values based on the given regular expression
 Matches based on some javascript comparison
 
 ```javascript
-[{ name: "frank" }, { name: "joe" }].filter(
-  sift({ $where: "this.name === 'frank'" }),
-); // ["frank"]
+[{ name: "frank" }, { name: "joe" }].filter(sift({ $where: "this.name === 'frank'" })); // ["frank"]
 [{ name: "frank" }, { name: "joe" }].filter(
   sift({
     $where: function () {
       return this.name === "frank";
     },
-  }),
+  })
 ); // ["frank"]
 ```
 
@@ -386,7 +354,7 @@ var result = bills.filter(
         value: { $gt: 1000 },
       },
     },
-  }),
+  })
 ); // {month:'august', casts:[{id:3, value: 1000},{id: 4, value: 4000}]}
 ```
 
@@ -410,9 +378,7 @@ db.collection.find({ createdAt: { $gte: "2018-03-22T06:00:00Z" } });
 In Sift, you'll need to specify a Date object:
 
 ```javascript
-collection.find(
-  sift({ createdAt: { $gte: new Date("2018-03-22T06:00:00Z") } }),
-);
+collection.find(sift({ createdAt: { $gte: new Date("2018-03-22T06:00:00Z") } }));
 ```
 
 ## Custom behavior
@@ -433,14 +399,10 @@ var filter = sift(
   {
     operations: {
       $customMod(params, ownerQuery, options) {
-        return createEqualsOperation(
-          (value) => value % params !== 0,
-          ownerQuery,
-          options,
-        );
+        return createEqualsOperation((value) => value % params !== 0, ownerQuery, options);
       },
     },
-  },
+  }
 );
 
 [1, 2, 3, 4, 5].filter(filter); // [1, 3, 5]
@@ -456,7 +418,7 @@ const test = createQueryTester(
   {
     $eq: 10,
   },
-  { operations: { $in, $all, $nin, $lt } },
+  { operations: { $in, $all, $nin, $lt } }
 );
 
 [1, 2, 3, 4, 10].filter(test);

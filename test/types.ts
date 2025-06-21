@@ -76,7 +76,7 @@ sift<Test2>({ name: { $gt: "5" } });
   sift({
     string: "a",
     number: 1,
-  }),
+  })
 );
 
 const obj = {
@@ -107,7 +107,7 @@ const obj = {
     number: {
       $in: [123, 2, 3], // Type '{ $in: number[]; }' is not assignable to type 'number | alueQuery<number>   undefined'. Object literal may only specify known properties, and '$in' does not exist in type 'ValueQuery<number>'.
     },
-  }),
+  })
 );
 
 const a = [obj].some(
@@ -127,21 +127,16 @@ const a = [obj].some(
         biz: 5,
       },
     },
-  }),
+  })
 ); // returns false
 
-[
-  { tags: ["books", "programming", "travel"] },
-  { tags: ["travel", "cooking"] },
-].filter(sift({ tags: { $all: ["books", "programming"] } }));
+[{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(sift({ tags: { $all: ["books", "programming"] } }));
 
 ["craig", "john", "jake"].filter(sift(/^j/));
 ["craig", "tim", "jake"].filter(sift({ $not: { $in: ["craig", "tim"] } }));
 
 //intersecting arrays
-const result1 = ["hello", "sifted", "array!"].filter(
-  sift({ $in: ["hello", "world"] }),
-); //['hello']
+const result1 = ["hello", "sifted", "array!"].filter(sift({ $in: ["hello", "world"] })); //['hello']
 
 //regexp filter
 const result2 = ["craig", "john", "jake"].filter(sift(/^j/)); //['john','jake']
@@ -173,40 +168,23 @@ testFilter({ name: "tim" }); //false
 
 createQueryTester({ $eq: 5 }, { operations: { $eq, $in } });
 
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  sift({ $in: ["Costa Rica", "Brazil"] }),
-);
+["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $in: ["Costa Rica", "Brazil"] }));
 
-[{ name: "Craig", location: "Brazil" }].filter(
-  sift({ location: { $in: ["Costa Rica", "Brazil"] } }),
-);
+[{ name: "Craig", location: "Brazil" }].filter(sift({ location: { $in: ["Costa Rica", "Brazil"] } }));
 
-["Brazil", "Haiti", "Peru", "Chile"].filter(
-  sift({ $nin: ["Costa Rica", "Brazil"] }),
-);
+["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $nin: ["Costa Rica", "Brazil"] }));
 
-[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(
-  sift({ city: { $exists: false } }),
-);
+[{ name: "Craig", city: "Minneapolis" }, { name: "Tim" }].filter(sift({ city: { $exists: false } }));
 [0, 1, 2, 3].filter(sift({ $gte: 2 }));
 
 [0, 1, 2, 3].filter(sift({ $gt: 2 }));
 [0, 1, 2, 3].filter(sift({ $lte: 2 }));
 [0, 1, 2, 3].filter(sift({ $lt: 2 }));
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: { $eq: "MN" } }),
-);
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: "MN" }),
-);
-[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(
-  sift({ state: { $ne: "MN" } }),
-);
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: { $eq: "MN" } }));
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: "MN" }));
+[{ state: "MN" }, { state: "CA" }, { state: "WI" }].filter(sift({ state: { $ne: "MN" } }));
 [100, 200, 300, 400, 500, 600].filter(sift({ $mod: [3, 0] }));
-[
-  { tags: ["books", "programming", "travel"] },
-  { tags: ["travel", "cooking"] },
-].filter(sift({ tags: { $all: ["books", "programming"] } }));
+[{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(sift({ tags: { $all: ["books", "programming"] } }));
 
 [
   { name: "Craig", state: "MN" },
@@ -226,29 +204,21 @@ createQueryTester({ $eq: 5 }, { operations: { $eq, $in } });
   { name: "Joe", state: "CA" },
 ].filter(sift({ $nor: [{ name: "Craig" }, { state: "MN" }] }));
 
-[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(
-  sift({ tags: { $size: 2 } }),
-);
+[{ tags: ["food", "cooking"] }, { tags: ["traveling"] }].filter(sift({ tags: { $size: 2 } }));
 
 [new Date(), 4342, "hello world"].filter(sift({ $type: Date })); //returns single date
 [new Date(), 4342, "hello world"].filter(sift({ $type: String })); //returns ['hello world']
 
-["frank", "fred", "sam", "frost"].filter(
-  sift({ $regex: /^f/i, $nin: ["frank"] }),
-); // ["fred", "frost"]
-["frank", "fred", "sam", "frost"].filter(
-  sift({ $regex: "^f", $options: "i", $nin: ["frank"] }),
-); // ["fred", "frost"]
+["frank", "fred", "sam", "frost"].filter(sift({ $regex: /^f/i, $nin: ["frank"] })); // ["fred", "frost"]
+["frank", "fred", "sam", "frost"].filter(sift({ $regex: "^f", $options: "i", $nin: ["frank"] })); // ["fred", "frost"]
 
-[{ name: "frank" }, { name: "joe" }].filter(
-  sift({ $where: "this.name === 'frank'" }),
-); // ["frank"]
+[{ name: "frank" }, { name: "joe" }].filter(sift({ $where: "this.name === 'frank'" })); // ["frank"]
 [{ name: "frank" }, { name: "joe" }].filter(
   sift({
     $where: function (this: any) {
       return this.name === "frank";
     },
-  }),
+  })
 ); // ["frank"]
 
 var bills = [
@@ -287,7 +257,7 @@ var result = bills.filter(
         value: { $gt: 1000 },
       },
     },
-  }),
+  })
 ); // {month:'august', casts:[{id:3, value: 1000},{id: 4, value: 4000}]}
 
 [{ name: "frank" }, { name: "joe", last: "bob" }].filter(
@@ -295,7 +265,7 @@ var result = bills.filter(
     $where: function (this: any) {
       return this.name === "frank" || this.last === "bob";
     },
-  }),
+  })
 );
 
 ["craig", "tim", "jake"].filter(sift({ $not: { $in: ["craig", "tim"] } })); //['jake']
