@@ -200,6 +200,27 @@ class $Nin extends BaseOperation<any> {
   }
 }
 
+class $Never extends BaseOperation<any> {
+  readonly propop = true;
+  private _in: $In;
+  constructor(params: any, ownerQuery: any, options: Options, name: string) {
+    super(params, ownerQuery, options, name);
+    this._in = new $In(params, ownerQuery, options);
+  }
+  next(item: any, key: Key, owner: any, root: boolean) {
+    // Use $in to do the heavy lifting, then invert the result
+    this._in.next(item, key, owner);
+
+    // $never is the logical complement of $in
+    this.done = this._in.done;
+    this.keep = !this._in.keep;
+  }
+  reset() {
+    super.reset();
+    this._in.reset();
+  }
+}
+
 class $Exists extends BaseOperation<boolean> {
   readonly propop = true;
   next(item: any, key: Key, owner: any, root: boolean, leaf?: boolean) {
@@ -253,6 +274,7 @@ export const $or = (params: Query<any>[], owneryQuery: Query<any>, options: Opti
 export const $nor = (params: Query<any>[], owneryQuery: Query<any>, options: Options, name: string) => new $Nor(params, owneryQuery, options, name);
 export const $elemMatch = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $ElemMatch(params, owneryQuery, options, name);
 export const $nin = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $Nin(params, owneryQuery, options, name);
+export const $never = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $Never(params, owneryQuery, options, name);
 export const $in = (params: any, owneryQuery: Query<any>, options: Options, name: string) => {
   return new $In(params, owneryQuery, options, name);
 };
