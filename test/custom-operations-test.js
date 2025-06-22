@@ -320,6 +320,216 @@ describe("$never operator", () => {
     });
   });
 
+  // Uniformity operator tests ($always)
+  describe("Uniformity operator scenarios ($always)", () => {
+    const uniformityTestData = [
+      {
+        id: 1,
+        skillLevels: ["advanced", "advanced", "advanced"],
+        ratings: [5, 5, 5],
+        permissions: ["admin"],
+      },
+      {
+        id: 2,
+        skillLevels: ["advanced", "intermediate"],
+        ratings: [5, 4, 5],
+        permissions: ["admin", "admin"],
+      },
+      {
+        id: 3,
+        skillLevels: ["beginner", "beginner"],
+        ratings: [1, 1, 1],
+        permissions: ["user", "user", "user"],
+      },
+      {
+        id: 4,
+        skillLevels: ["expert"],
+        ratings: [5],
+        permissions: ["guest"],
+      },
+      {
+        id: 5,
+        skillLevels: ["intermediate", "advanced", "expert"],
+        ratings: [3, 4, 5],
+        permissions: ["user", "admin"],
+      },
+    ];
+
+    it("should match when ALL array elements equal the specified value", () => {
+      const filter = sift({
+        skillLevels: { $always: "advanced" },
+      });
+
+      const result = uniformityTestData.filter(filter);
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, 1);
+    });
+
+    it("should not match when ANY array element differs from specified value", () => {
+      const filter = sift({
+        skillLevels: { $always: "advanced" },
+      });
+
+      const result = uniformityTestData.filter(filter);
+      const nonMatches = uniformityTestData.filter((item) => !result.includes(item));
+
+      assert.equal(nonMatches.length, 4);
+      assert.deepEqual(nonMatches.map((item) => item.id).sort(), [2, 3, 4, 5]);
+    });
+
+    it("should work with single-element arrays", () => {
+      const filter = sift({
+        skillLevels: { $always: "expert" },
+      });
+
+      const result = uniformityTestData.filter(filter);
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, 4);
+    });
+
+    it("should work with numeric values", () => {
+      const filter = sift({
+        ratings: { $always: 5 },
+      });
+
+      const result = uniformityTestData.filter(filter);
+      assert.equal(result.length, 2);
+      assert.deepEqual(result.map((r) => r.id).sort(), [1, 4]);
+    });
+
+    it("should work with mixed data types", () => {
+      const mixedData = [
+        { id: 1, values: [true, true, true] },
+        { id: 2, values: [true, false] },
+        { id: 3, values: [false, false] },
+        { id: 4, values: [42, 42, 42] },
+        { id: 5, values: [42, 43] },
+      ];
+
+      const booleanFilter = sift({ values: { $always: true } });
+      const numberFilter = sift({ values: { $always: 42 } });
+
+      const booleanResults = mixedData.filter(booleanFilter);
+      const numberResults = mixedData.filter(numberFilter);
+
+      assert.equal(booleanResults.length, 1);
+      assert.equal(booleanResults[0].id, 1);
+
+      assert.equal(numberResults.length, 1);
+      assert.equal(numberResults[0].id, 4);
+    });
+
+    it("should handle empty arrays correctly", () => {
+      const emptyArrayData = [
+        { id: 1, tags: [] },
+        { id: 2, tags: ["test"] },
+      ];
+
+      const filter = sift({
+        tags: { $always: "test" },
+      });
+
+      const result = emptyArrayData.filter(filter);
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, 2);
+    });
+
+    it("should be the logical complement of $notAlways (hypothetical)", () => {
+      // Test that $always covers the cases where $notAlways wouldn't
+      const allAdvanced = uniformityTestData.filter(sift({ skillLevels: { $always: "advanced" } }));
+      const mixedSkills = uniformityTestData.filter((item) => !allAdvanced.includes(item));
+
+      // Should cover all data
+      assert.equal(allAdvanced.length + mixedSkills.length, uniformityTestData.length);
+
+      // Should have no overlap
+      assert.equal(allAdvanced.filter((item) => mixedSkills.includes(item)).length, 0);
+    });
+
+    it("should work with real-world permission scenarios", () => {
+      const permissionData = [
+        { user: "admin1", permissions: ["admin", "admin", "admin"] },
+        { user: "mixed1", permissions: ["admin", "user"] },
+        { user: "user1", permissions: ["user", "user", "user"] },
+        { user: "guest1", permissions: ["guest"] },
+      ];
+
+      // Find users with all admin permissions
+      const allAdminFilter = sift({
+        permissions: { $always: "admin" },
+      });
+
+      // Find users with all user permissions
+      const allUserFilter = sift({
+        permissions: { $always: "user" },
+      });
+
+      const allAdminUsers = permissionData.filter(allAdminFilter);
+      const allUserUsers = permissionData.filter(allUserFilter);
+
+      assert.equal(allAdminUsers.length, 1);
+      assert.equal(allAdminUsers[0].user, "admin1");
+
+      assert.equal(allUserUsers.length, 1);
+      assert.equal(allUserUsers[0].user, "user1");
+    });
+
+    it("should work with combined filters", () => {
+      const combinedFilter = sift({
+        $and: [{ skillLevels: { $always: "advanced" } }, { ratings: { $always: 5 } }],
+      });
+
+      const result = uniformityTestData.filter(combinedFilter);
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, 1);
+    });
+
+    it("should demonstrate difference from $all operator", () => {
+      const testData = [
+        { id: 1, tags: ["premium", "limited", "exclusive"] },
+        { id: 2, tags: ["premium", "premium", "premium"] },
+        { id: 3, tags: ["limited", "exclusive"] },
+      ];
+
+      // $all checks if array CONTAINS all specified values
+      const allFilter = sift({
+        tags: { $all: ["premium", "limited"] },
+      });
+
+      // $always checks if ALL elements EQUAL the specified value
+      const alwaysFilter = sift({
+        tags: { $always: "premium" },
+      });
+
+      const allResults = testData.filter(allFilter);
+      const alwaysResults = testData.filter(alwaysFilter);
+
+      // $all should match items 1 (contains both premium and limited)
+      assert.equal(allResults.length, 1);
+      assert.equal(allResults[0].id, 1);
+
+      // $always should match item 2 (all elements are premium)
+      assert.equal(alwaysResults.length, 1);
+      assert.equal(alwaysResults[0].id, 2);
+    });
+
+    it("should handle string comparison correctly", () => {
+      const stringData = [
+        { id: 1, levels: ["ADVANCED", "ADVANCED"] },
+        { id: 2, levels: ["advanced", "advanced"] },
+        { id: 3, levels: ["Advanced", "Advanced"] },
+      ];
+
+      const exactMatchFilter = sift({
+        levels: { $always: "advanced" },
+      });
+
+      const result = stringData.filter(exactMatchFilter);
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, 2);
+    });
+  });
+
   // Edge cases
   describe("Edge cases", () => {
     it("should handle empty arrays", () => {

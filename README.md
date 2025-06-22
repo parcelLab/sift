@@ -11,7 +11,7 @@
 
 ## Features:
 
-- Supported operators: [\$in](#in), [\$nin](#nin), [\$exists](#exists), [\$gte](#gte), [\$gt](#gt), [\$lte](#lte), [\$lt](#lt), [\$eq](#eq), [\$ne](#ne), [\$mod](#mod), [\$all](#all), [\$and](#and), [\$or](#or), [\$nor](#nor), [\$not](#not), [\$size](#size), [\$type](#type), [\$regex](#regex), [\$where](#where), [\$elemMatch](#elemmatch)
+- Supported operators: [\$in](#in), [\$nin](#nin), [\$never](#never), [\$exists](#exists), [\$gte](#gte), [\$gt](#gt), [\$lte](#lte), [\$lt](#lt), [\$eq](#eq), [\$ne](#ne), [\$mod](#mod), [\$all](#all), [\$always](#always), [\$and](#and), [\$or](#or), [\$nor](#nor), [\$not](#not), [\$size](#size), [\$type](#type), [\$regex](#regex), [\$where](#where), [\$elemMatch](#elemmatch)
 - Regexp searches
 - Supports node.js, and web
 - Custom Operations
@@ -136,6 +136,76 @@ Opposite of \$in:
 ["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $nin: ["Costa Rica", "Brazil"] }));
 ```
 
+### \$never
+
+Logical complement of \$in - returns items where NONE of the array elements match the forbidden values:
+
+```javascript
+// filtered: [{ name: 'Alice', tags: ['admin', 'senior'] }]
+[
+  { name: "Alice", tags: ["admin", "senior"] },
+  { name: "Bob", tags: ["user", "junior"] },
+  { name: "Charlie", tags: ["admin", "trainee"] },
+].filter(sift({ tags: { $never: ["trainee", "intern"] } }));
+```
+
+Perfect for filtering when you need to exclude items that contain ANY forbidden values:
+
+```javascript
+// Find products without any restricted tags
+[
+  { product: "A", tags: ["electronics", "mobile"] },
+  { product: "B", tags: ["books", "fiction"] },
+  { product: "C", tags: ["electronics", "restricted"] },
+].filter(sift({ tags: { $never: ["restricted", "banned"] } }));
+// Returns products A and B
+```
+
+## Array Membership Operators Comparison
+
+The following table shows how different operators work with array data:
+
+| Operator     | Logic            | Query Example                                | Description                                                             |
+| ------------ | ---------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| **\$in**     | **ANY** match    | `{ tags: { $in: ['urgent'] } }`              | Returns items where the array contains **any** of the specified values  |
+| **\$never**  | **NONE** match   | `{ tags: { $never: ['urgent'] } }`           | Returns items where the array contains **none** of the specified values |
+| **\$nin**    | **NONE** match\* | `{ tags: { $nin: ['urgent'] } }`             | Similar to \$never but with different array handling edge cases         |
+| **\$all**    | **CONTAINS ALL** | `{ tags: { $all: ['urgent', 'critical'] } }` | Returns items where the array **contains all** specified values         |
+| **\$always** | **ALL EQUAL**    | `{ levels: { $always: 'advanced' } }`        | Returns items where **all array elements equal** the specified value    |
+
+\* _\$nin has complex behavior with nested arrays that can be unintuitive_
+
+### Example Data and Results
+
+Given this test data:
+
+```javascript
+const users = [
+  { name: "Alice", tags: ["admin", "senior"], levels: ["advanced", "advanced"] },
+  { name: "Bob", tags: ["user", "junior"], levels: ["beginner", "intermediate"] },
+  { name: "Charlie", tags: ["admin", "junior"], levels: ["advanced", "intermediate"] },
+  { name: "David", tags: ["guest"], levels: ["beginner"] },
+  { name: "Eve", tags: ["admin", "senior", "lead"], levels: ["expert", "expert"] },
+];
+```
+
+**Query Results:**
+
+| Query                                     | Matches                  | Explanation                                        |
+| ----------------------------------------- | ------------------------ | -------------------------------------------------- |
+| `{ tags: { $in: ['admin'] } }`            | Alice, Charlie, Eve      | Users whose tags contain 'admin'                   |
+| `{ tags: { $never: ['guest'] } }`         | Alice, Bob, Charlie, Eve | Users whose tags don't contain 'guest'             |
+| `{ tags: { $all: ['admin', 'senior'] } }` | Alice, Eve               | Users whose tags contain both 'admin' and 'senior' |
+| `{ levels: { $always: 'advanced' } }`     | Alice                    | Users where all skill levels are 'advanced'        |
+
+**Logical Relationships:**
+
+- `$in` and `$never` are **perfect complements** (together they cover all cases)
+- `$all` and `$always` address **different dimensions**:
+  - `$all`: **Membership** - Does array contain all specified values?
+  - `$always`: **Uniformity** - Do all array elements equal the specified value?
+- **Complete logical space** for array operations is now covered!
+
 ### \$exists
 
 Checks if whether a value exists:
@@ -229,6 +299,39 @@ values must match **everything** in array:
 ```javascript
 // filtered: [ { tags: ['books','programming','travel' ]} ]
 [{ tags: ["books", "programming", "travel"] }, { tags: ["travel", "cooking"] }].filter(sift({ tags: { $all: ["books", "programming"] } }));
+```
+
+### \$always
+
+**all** array elements must **equal** the specified value:
+
+```javascript
+// filtered: [{ name: 'Alice', levels: ['advanced', 'advanced'] }]
+[
+  { name: "Alice", levels: ["advanced", "advanced"] },
+  { name: "Bob", levels: ["advanced", "intermediate"] },
+  { name: "Charlie", levels: ["intermediate", "intermediate"] },
+].filter(sift({ levels: { $always: "advanced" } }));
+```
+
+Perfect for finding uniform arrays where every element matches:
+
+```javascript
+// Find teams where everyone is senior level
+[
+  { team: "A", skillLevels: ["senior", "senior", "senior"] },
+  { team: "B", skillLevels: ["senior", "junior"] },
+  { team: "C", skillLevels: ["junior", "junior"] },
+].filter(sift({ skillLevels: { $always: "senior" } }));
+// Returns only team A
+
+// Find products with perfect ratings
+[
+  { product: "X", ratings: [5, 5, 5] },
+  { product: "Y", ratings: [5, 4, 5] },
+  { product: "Z", ratings: [3, 3, 3] },
+].filter(sift({ ratings: { $always: 5 } }));
+// Returns only product X
 ```
 
 ### \$and

@@ -221,6 +221,39 @@ class $Never extends BaseOperation<any> {
   }
 }
 
+class $Always extends BaseOperation<any> {
+  readonly propop = true;
+  private _test: Tester;
+  init() {
+    if (containsOperation(this.params, this.options)) {
+      throw new Error(`cannot nest $ under ${this.name.toLowerCase()}`);
+    }
+    this._test = createTester(this.params, this.options.compare);
+  }
+  next(item: any, key: Key, owner: any, root: boolean) {
+    // For $always, we need to check if ALL elements in the array match the target value
+    // Since sift calls next() for each array element individually, we need to track state
+
+    if (isArray(owner) && !root) {
+      // We're processing an element within an array
+      if (!this._test(item)) {
+        // If any element doesn't match, the result is false
+        this.keep = false;
+        this.done = true;
+      } else if (key == owner.length - 1) {
+        // This is the last element and all previous elements matched
+        this.keep = true;
+        this.done = true;
+      }
+      // For middle elements that match, we continue processing
+    } else {
+      // For non-array contexts, just test the single value
+      this.keep = this._test(item);
+      this.done = true;
+    }
+  }
+}
+
 class $Exists extends BaseOperation<boolean> {
   readonly propop = true;
   next(item: any, key: Key, owner: any, root: boolean, leaf?: boolean) {
@@ -275,6 +308,7 @@ export const $nor = (params: Query<any>[], owneryQuery: Query<any>, options: Opt
 export const $elemMatch = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $ElemMatch(params, owneryQuery, options, name);
 export const $nin = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $Nin(params, owneryQuery, options, name);
 export const $never = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $Never(params, owneryQuery, options, name);
+export const $always = (params: any, owneryQuery: Query<any>, options: Options, name: string) => new $Always(params, owneryQuery, options, name);
 export const $in = (params: any, owneryQuery: Query<any>, options: Options, name: string) => {
   return new $In(params, owneryQuery, options, name);
 };

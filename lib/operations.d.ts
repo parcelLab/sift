@@ -57,6 +57,12 @@ declare class $Never extends BaseOperation<any> {
   next(item: any, key: Key, owner: any, root: boolean): void;
   reset(): void;
 }
+declare class $Always extends BaseOperation<any> {
+  readonly propop = true;
+  private _test;
+  init(): void;
+  next(item: any, key: Key, owner: any, root: boolean): void;
+}
 declare class $Exists extends BaseOperation<boolean> {
   readonly propop = true;
   next(item: any, key: Key, owner: any, root: boolean, leaf?: boolean): void;
@@ -78,6 +84,7 @@ export declare const $nor: (params: Query<any>[], owneryQuery: Query<any>, optio
 export declare const $elemMatch: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $ElemMatch;
 export declare const $nin: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $Nin;
 export declare const $never: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $Never;
+export declare const $always: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $Always;
 export declare const $in: (params: any, owneryQuery: Query<any>, options: Options, name: string) => $In;
 export declare const $lt: (params: any, owneryQuery: any, options: Options, name: string) => Operation<any>;
 export declare const $lte: (params: any, owneryQuery: any, options: Options, name: string) => Operation<any>;
