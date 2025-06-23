@@ -129,12 +129,85 @@ Here's another example. This acts more like the \$or operator:
 
 ### \$nin
 
-Opposite of \$in:
+Opposite of \$in - values must NOT be in the given array:
 
 ```javascript
 // filtered: ['Haiti','Peru','Chile']
 ["Brazil", "Haiti", "Peru", "Chile"].filter(sift({ $nin: ["Costa Rica", "Brazil"] }));
 ```
+
+Basic object filtering:
+
+```javascript
+// filtered: [{ name: 'Tim', location: 'CA' }, { name: 'Joe', location: 'NY' }]
+[
+  { name: "Craig", location: "Brazil" },
+  { name: "Tim", location: "CA" },
+  { name: "Joe", location: "NY" },
+].filter(sift({ location: { $nin: ["Brazil", "Mexico"] } }));
+```
+
+**Important**: \$nin has complex behavior with arrays. When filtering arrays by array fields, \$nin checks if AT LEAST ONE element does NOT match the forbidden values:
+
+```javascript
+// Array field filtering - \$nin vs \$never behavior
+const users = [
+  { name: "Alice", tags: ["admin", "senior"] },
+  { name: "Bob", tags: ["user", "junior"] },
+  { name: "Charlie", tags: ["admin", "trainee"] },
+  { name: "David", tags: ["guest"] },
+  { name: "Eve", tags: ["trainee", "intern"] },
+];
+
+// \$nin: Returns items where AT LEAST ONE array element does NOT match forbidden values
+users.filter(sift({ tags: { $nin: ["trainee", "intern"] } }));
+// Returns: Alice, Bob, Charlie, David (only Eve excluded - all her tags are forbidden)
+
+// \$never: Returns items where NO array elements match forbidden values
+users.filter(sift({ tags: { $never: ["trainee", "intern"] } }));
+// Returns: Alice, Bob, David (Charlie and Eve excluded - they contain forbidden tags)
+```
+
+**\$nin vs \$never comparison** for array fields:
+
+```javascript
+const products = [
+  { name: "Phone", categories: ["electronics", "mobile"] },
+  { name: "Book", categories: ["books", "fiction"] },
+  { name: "Game", categories: ["electronics", "restricted"] },
+  { name: "Bad", categories: ["restricted", "banned"] },
+];
+
+// \$nin and \$never have DIFFERENT behavior:
+products.filter(sift({ categories: { $nin: ["restricted", "banned"] } }));
+// Returns: Phone, Book, Game (Game has "electronics" which is not forbidden)
+
+products.filter(sift({ categories: { $never: ["restricted", "banned"] } }));
+// Returns: Phone, Book (Game excluded because it contains "restricted")
+
+// Key difference:
+// - \$nin: "at least one element is NOT forbidden"
+// - \$never: "NO elements are forbidden"
+```
+
+**Edge case with nested arrays** (where \$nin can be unintuitive):
+
+```javascript
+const data = [
+  { field: ["a", "b"] },
+  { field: [["a", "b"]] }, // nested array
+  { field: ["c", "d"] },
+];
+
+// \$nin may have unexpected behavior with nested arrays
+data.filter(sift({ field: { $nin: [["a", "b"]] } }));
+// Result can be unintuitive due to MongoDB's array handling rules
+
+// For clearer array membership logic, prefer \$never:
+data.filter(sift({ field: { $never: [["a", "b"]] } }));
+```
+
+**Recommendation**: For array field filtering, consider using `$never` instead of `$nin` as it provides more predictable and intuitive behavior for array membership operations.
 
 ### \$never
 
@@ -165,15 +238,15 @@ Perfect for filtering when you need to exclude items that contain ANY forbidden 
 
 The following table shows how different operators work with array data:
 
-| Operator     | Logic            | Query Example                                | Description                                                             |
-| ------------ | ---------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
-| **\$in**     | **ANY** match    | `{ tags: { $in: ['urgent'] } }`              | Returns items where the array contains **any** of the specified values  |
-| **\$never**  | **NONE** match   | `{ tags: { $never: ['urgent'] } }`           | Returns items where the array contains **none** of the specified values |
-| **\$nin**    | **NONE** match\* | `{ tags: { $nin: ['urgent'] } }`             | Similar to \$never but with different array handling edge cases         |
-| **\$all**    | **CONTAINS ALL** | `{ tags: { $all: ['urgent', 'critical'] } }` | Returns items where the array **contains all** specified values         |
-| **\$always** | **ALL EQUAL**    | `{ levels: { $always: 'advanced' } }`        | Returns items where **all array elements equal** the specified value    |
+| Operator     | Logic               | Query Example                                | Description                                                                       |
+| ------------ | ------------------- | -------------------------------------------- | --------------------------------------------------------------------------------- |
+| **\$in**     | **ANY** match       | `{ tags: { $in: ['urgent'] } }`              | Returns items where the array contains **any** of the specified values            |
+| **\$never**  | **NONE** match      | `{ tags: { $never: ['urgent'] } }`           | Returns items where the array contains **none** of the specified values           |
+| **\$nin**    | **NOT ALL** match\* | `{ tags: { $nin: ['urgent'] } }`             | Returns items where **at least one** array element is NOT in the specified values |
+| **\$all**    | **CONTAINS ALL**    | `{ tags: { $all: ['urgent', 'critical'] } }` | Returns items where the array **contains all** specified values                   |
+| **\$always** | **ALL EQUAL**       | `{ levels: { $always: 'advanced' } }`        | Returns items where **all array elements equal** the specified value              |
 
-\* _\$nin has complex behavior with nested arrays that can be unintuitive_
+\* _\$nin: excludes only when ALL array elements match the forbidden values_
 
 ### Example Data and Results
 
@@ -194,6 +267,7 @@ const users = [
 | Query                                     | Matches                  | Explanation                                        |
 | ----------------------------------------- | ------------------------ | -------------------------------------------------- |
 | `{ tags: { $in: ['admin'] } }`            | Alice, Charlie, Eve      | Users whose tags contain 'admin'                   |
+| `{ tags: { $nin: ['guest'] } }`           | Alice, Bob, Charlie, Eve | Users whose tags don't contain 'guest'             |
 | `{ tags: { $never: ['guest'] } }`         | Alice, Bob, Charlie, Eve | Users whose tags don't contain 'guest'             |
 | `{ tags: { $all: ['admin', 'senior'] } }` | Alice, Eve               | Users whose tags contain both 'admin' and 'senior' |
 | `{ levels: { $always: 'advanced' } }`     | Alice                    | Users where all skill levels are 'advanced'        |
@@ -201,6 +275,9 @@ const users = [
 **Logical Relationships:**
 
 - `$in` and `$never` are **perfect complements** (together they cover all cases)
+- `$nin` and `$never` have **different logic** for array fields:
+  - `$nin`: "at least one element is NOT in forbidden list" (partial exclusion)
+  - `$never`: "NO elements are in forbidden list" (complete exclusion)
 - `$all` and `$always` address **different dimensions**:
   - `$all`: **Membership** - Does array contain all specified values?
   - `$always`: **Uniformity** - Do all array elements equal the specified value?
