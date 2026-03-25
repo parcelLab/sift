@@ -1,0 +1,65 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 10
+    groups:
+      aws-sdk:
+        patterns:
+          - "@aws-sdk/*"
+          - "@smithy/*"
+      sentry:
+        patterns:
+          - "@sentry/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+          - "@stylistic/eslint-plugin"
+          - "typescript-eslint"
+      jest:
+        patterns:
+          - "jest"
+          - "jest-*"
+          - "@jest/*"
+          - "@swc/jest"
+      azure:
+        patterns:
+          - "@azure/*"
+    ignore:
+      - dependency-name: "mongoose"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "express"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@parcellab/typescript-plcommon"
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(actions)"
+      include: "scope"
