@@ -1,0 +1,41 @@
+name: Test
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+jobs:
+  ci_checks:
+    uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v8
+
+  ci_check_result:
+    needs: ci_checks
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show CI check results
+        run: |
+          echo "full_run_required=${{ needs.ci_checks.outputs.full_run_required }}"
+          echo "test_run_required=${{ needs.ci_checks.outputs.test_run_required }}"
+
+  test:
+    needs: ci_checks
+    if: ${{ needs.ci_checks.outputs.test_run_required == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
