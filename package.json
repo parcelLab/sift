@@ -36,6 +36,9 @@
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky"
   },
+  "overrides": {
+    "serialize-javascript": ">=7.0.5"
+  },
   "files": [
     "index.js",
     "lib",
