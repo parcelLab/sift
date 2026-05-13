@@ -19,7 +19,6 @@
   "devDependencies": {
     "@types/node": "^18.19.29",
     "husky": "^9.0.11",
-    "mocha": "^10.4.0",
     "mongodb": "^6.5.0",
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
@@ -31,13 +30,10 @@
     "build": "tsc",
     "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
     "test": "npm run test:spec && npm run test:types",
-    "test:spec": "mocha ./test -R spec",
+    "test:spec": "node --test 'test/*-test.js'",
     "test:types": "cd test && tsc types.ts --noEmit",
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky"
-  },
-  "overrides": {
-    "serialize-javascript": ">=7.0.5"
   },
   "files": [
     "index.js",

@@ -1,3 +1,4 @@
+const { describe, it } = require("node:test");
 // describe(__filename + "#", function() {
 //   var topic = Immutable.List([1, 2, 3, 4, 5, 6, 6, 4, 3]);
 

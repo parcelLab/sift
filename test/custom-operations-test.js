@@ -1,8 +1,9 @@
+const { describe, it } = require("node:test");
 const assert = require("assert");
 const sift = require("../lib");
 
 describe(__filename + "#", () => {
-  xit("can add a custom $mod operation", function () {
+  it.skip("can add a custom $mod operation", function () {
     var filter = sift(
       { $mod2: 2 },
       {

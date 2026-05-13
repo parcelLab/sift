@@ -1,3 +1,4 @@
+const { describe, it } = require("node:test");
 const assert = require("assert");
 const { default: sift, createQueryTester, $eq } = require("../lib");
 const { ObjectId } = require("bson");
@@ -7,7 +8,7 @@ describe(__filename + "#", function () {
     var values = [9, 8, 7, 6, 5, 4, 3, 2, 1].filter(
       sift({
         $or: [3, 2, 1],
-      })
+      }),
     );
 
     assert.equal(values.length, 3);
@@ -16,14 +17,14 @@ describe(__filename + "#", function () {
     assert.equal(values[2], 1);
   });
 
-  xit("can create a custom selector, and use it", function () {
+  it.skip("can create a custom selector, and use it", function () {
     var sifter = sift(
       { age: { $gt: 5 } },
       {
         select: function (item) {
           return item.person;
         },
-      }
+      },
     );
 
     var people = [{ person: { age: 6 } }],
@@ -200,7 +201,7 @@ describe(__filename + "#", function () {
           { "period.startDate": { $lte: period.endDate } },
           { "period.endDate": { $gte: period.startDate } },
         ],
-      })
+      }),
     );
 
     assert.equal(results.length, 2);
@@ -213,7 +214,7 @@ describe(__filename + "#", function () {
       const sifter = sift({ a: 'a1' });
       const arr = [{ a: 'a1', b: 'b1' }, { a: 'a2', b: 'b2' }];
       return arr.filter(sifter);
-    `
+    `,
     );
 
     const results = fn(sift);
@@ -426,28 +427,28 @@ describe(__filename + "#", function () {
       sift({
         prop1: /.*?(as|df).*?/g,
         prop2: "as",
-      })
+      }),
     );
 
     const resultsWithoutGlobal = objects.filter(
       sift({
         prop1: /.*?(as|df).*?/,
         prop2: "as",
-      })
+      }),
     );
 
     const resultsWithGlobal2 = objects.filter(
       sift({
         prop1: { $regex: ".*?(as|df).*?", $options: "g" },
         prop2: "as",
-      })
+      }),
     );
 
     const resultsWithoutGlobal2 = objects.filter(
       sift({
         prop1: { $regex: ".*?(as|df).*?" },
         prop2: "as",
-      })
+      }),
     );
 
     assert.equal(resultsWithGlobal.length, 3);
@@ -492,7 +493,7 @@ describe(__filename + "#", function () {
         sift({ responsible: { $elemMatch: "Poyan" } })({
           responsible: ["Poyan", "Marcus"],
         }),
-        false
+        false,
       );
     }, new Error("Malformed query. $elemMatch must by an object."));
   });
@@ -515,7 +516,7 @@ describe(__filename + "#", function () {
     assert.throws(() => {
       createQueryTester(
         { name: { eq: 5, prop: 100 } },
-        { operations: { eq: $eq } }
+        { operations: { eq: $eq } },
       );
     }, new Error("Property queries must contain only operations, or exact objects."));
   });
@@ -567,7 +568,7 @@ describe(__filename + "#", function () {
           $in: ["animal"],
           $nin: ["mouse"],
         },
-      })
+      }),
     );
 
     assert.deepEqual(result, [
