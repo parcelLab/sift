@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   ci_checks:
-    uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v8
+    uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v9
 
   ci_check_result:
     needs: ci_checks
