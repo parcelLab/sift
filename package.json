@@ -24,7 +24,7 @@
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
     "semantic-release": "^25.0.9",
-    "typescript": "^5.4.4"
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "clean": "rm -rf lib",
