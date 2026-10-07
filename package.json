@@ -18,13 +18,13 @@
   },
   "devDependencies": {
     "@semantic-release/git": "^11.0.1",
-    "@types/node": "^18.19.29",
+    "@types/node": "^26.6.4",
     "husky": "^9.0.11",
     "mongodb": "^6.5.0",
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
     "semantic-release": "^25.0.9",
-    "typescript": "^5.4.4"
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "clean": "rm -rf lib",
@@ -33,7 +33,7 @@
     "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
     "test": "npm run test:spec && npm run test:types",
     "test:spec": "node --test 'test/*-test.js'",
-    "test:types": "cd test && tsc types.ts --noEmit",
+    "test:types": "cd test && tsc types.ts --noEmit --ignoreConfig",
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky"
   },
