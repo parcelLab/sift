@@ -149,7 +149,7 @@ const result2 = ["craig", "john", "jake"].filter(sift(/^j/)); //['john','jake']
 // function filter
 const testFilter = sift({
   //you can also filter against functions
-  name: function (value) {
+  name: function (value: string) {
     return value.length == 5;
   },
 });
