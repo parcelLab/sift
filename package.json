@@ -33,7 +33,7 @@
     "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
     "test": "npm run test:spec && npm run test:types",
     "test:spec": "node --test 'test/*-test.js'",
-    "test:types": "cd test && tsc types.ts --noEmit --ignoreConfig",
+    "test:types": "tsc -p test",
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky"
   },
