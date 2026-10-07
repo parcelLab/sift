@@ -67,13 +67,12 @@ export type ShapeQuery<TItemSchema> = TItemSchema extends NotObject
 export type NestedQuery<TItemSchema> = ValueQuery<TItemSchema> &
   ShapeQuery<TItemSchema>;
 export type Query<TItemSchema> =
-  | TItemSchema
-  | RegExp
-  | NestedQuery<TItemSchema>;
+  TItemSchema | RegExp | NestedQuery<TItemSchema>;
 export type QueryOperators<TValue = any> = keyof ValueQuery<TValue>;
-export declare abstract class BaseOperation<TParams, TItem = any>
-  implements Operation<TItem>
-{
+export declare abstract class BaseOperation<
+  TParams,
+  TItem = any,
+> implements Operation<TItem> {
   readonly params: TParams;
   readonly owneryQuery: any;
   readonly options: Options;
