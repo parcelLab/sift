@@ -8,23 +8,6 @@ jobs:
   ci_checks:
     uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v9
 
-  # Required status check in branch protection. Passes when test succeeded or
-  # was skipped (no test run required), fails otherwise.
-  ci_check_result:
-    needs:
-      - ci_checks
-      - test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Show CI check results
-        run: |
-          echo "full_run_required=${{ needs.ci_checks.outputs.full_run_required }}"
-          echo "test_run_required=${{ needs.ci_checks.outputs.test_run_required }}"
-      - name: Fail if a required job failed
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
-        run: exit 1
-
   test:
     needs: ci_checks
     if: ${{ needs.ci_checks.outputs.test_run_required == 'true' }}
@@ -46,3 +29,20 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  # Required status check in branch protection. Passes when test succeeded or
+  # was skipped (no test run required), fails otherwise.
+  ci_check_result:
+    needs:
+      - ci_checks
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show CI check results
+        run: |
+          echo "full_run_required=${{ needs.ci_checks.outputs.full_run_required }}"
+          echo "test_run_required=${{ needs.ci_checks.outputs.test_run_required }}"
+      - name: Fail if a required job failed
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
