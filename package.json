@@ -18,13 +18,13 @@
   },
   "devDependencies": {
     "@semantic-release/git": "^11.0.1",
-    "@types/node": "^18.19.29",
+    "@types/node": "^24.19.2",
     "husky": "^9.1.7",
     "mongodb": "^7.7.0",
     "prettier": "^3.9.10",
     "pretty-quick": "^4.2.2",
     "semantic-release": "^25.0.9",
-    "typescript": "^5.4.4"
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "clean": "rm -rf lib",
