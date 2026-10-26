@@ -21,7 +21,7 @@
     "@types/node": "^26.6.5",
     "husky": "^9.1.7",
     "mongodb": "^7.7.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "pretty-quick": "^4.2.2",
     "semantic-release": "^25.0.9",
     "typescript": "^5.4.4"
