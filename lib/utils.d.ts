@@ -1,8 +1,6 @@
 export type Key = string | number;
 export type Comparator = (a: any, b: any) => boolean;
-export declare const typeChecker: <TType>(
-  type: any,
-) => (value: any) => value is TType;
+export declare const typeChecker: <TType>(type: any) => (value: any) => value is TType;
 export declare const comparable: (value: any) => any;
 export declare const coercePotentiallyNull: (value: any) => any;
 export declare const isArray: (value: any) => value is any[];

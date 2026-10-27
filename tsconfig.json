@@ -3,7 +3,9 @@
     "outDir": "lib",
     "target": "es6",
     "sourceMap": true,
-    "moduleResolution": "node",
+    "rootDir": "src",
+    "strict": false,
+    "types": ["node"],
     "module": "commonjs",
     "declaration": true,
     "allowSyntheticDefaultImports": true
