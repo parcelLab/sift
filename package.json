@@ -20,7 +20,6 @@
     "node": ">= 24"
   },
   "devDependencies": {
-    "@semantic-release/git": "^11.0.1",
     "@types/node": "^24.19.1",
     "husky": "^9.1.7",
     "mongodb": "^7.7.0",
