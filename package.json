@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git+https://github.com/parcelLab/sift.git"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "author": {
     "name": "Chiawei Ong",
     "email": "chiawei.ong@parcellab.com"
