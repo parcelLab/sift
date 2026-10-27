@@ -14,12 +14,6 @@
       {
         "draftRelease": true
       }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        "assets": ["package.json", "package-lock.json", "lib"]
-      }
     ]
   ]
 }
