@@ -28,9 +28,7 @@
     "typescript": "^7.0.2"
   },
   "scripts": {
-    "clean": "rm -rf lib",
-    "prebuild": "npm run clean",
-    "build": "tsc",
+    "build": "rm -rf lib && tsc",
     "format": "prettier --write .",
     "format:staged": "lint-staged",
     "test": "npm run test:spec && npm run test:types",
