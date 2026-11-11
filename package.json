@@ -22,9 +22,9 @@
   "devDependencies": {
     "@types/node": "^24.19.1",
     "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "mongodb": "^7.8.0",
     "prettier": "^3.9.10",
-    "pretty-quick": "^4.2.2",
     "typescript": "^7.0.2"
   },
   "scripts": {
@@ -32,11 +32,16 @@
     "prebuild": "npm run clean",
     "build": "tsc",
     "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
+    "format": "prettier --write .",
+    "format:staged": "lint-staged",
     "test": "npm run test:spec && npm run test:types",
     "test:spec": "node --test 'test/*-test.js'",
     "test:types": "tsc -p test",
     "prepublishOnly": "npm run build && npm run test",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
   },
   "files": [
     "index.js",

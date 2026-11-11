@@ -38,6 +38,10 @@ The package is published from the repository root, preserving the existing `inde
 
 Publication runs the existing `prepublishOnly` script, which runs `npm run build` and `npm test` before upload. `npm test` includes both `test:spec` and `test:types`. Run these same build and test scripts locally when preparing changes.
 
+Before a commit, the Git hook runs `npm run format:staged`, followed by `npm test` if formatting succeeds. `lint-staged` runs Prettier on staged files with supported formats and adds the formatting changes to the index. Unstaged changes in partially staged files are temporarily hidden and restored afterward. Generated files in `lib/` remain excluded by `.prettierignore`.
+
+Use `npm run format` to format the whole working tree. When preparing source changes for release, format before running `npm run build` so committed source maps match the formatted source.
+
 ## Permissions and concurrency
 
 - Draft updates need `contents: write` and `pull-requests: read`.
