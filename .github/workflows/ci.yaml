@@ -4,6 +4,15 @@ on:
     branches:
       - "**"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Optional release version without v, for example 19.0.1"
+        required: false
+        type: string
+      from:
+        description: "Optional previous tag for the changelog"
+        required: false
+        type: string
 jobs:
   ci_checks:
     uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v9
@@ -46,3 +55,47 @@ jobs:
       - name: Fail if a required job failed
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: exit 1
+
+  draft_release:
+    needs: ci_check_result
+    if: ${{ !cancelled() && needs.ci_check_result.result == 'success' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    concurrency:
+      group: release-drafter-main
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Legacy publishers can leave drafts for packages that are already released.
+      - name: Protect drafts with existing tags
+        id: drafts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          drafts=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq '.[] | select(.draft and (.prerelease | not)) | .tag_name')
+          while IFS= read -r tag; do
+            if [[ -n "$tag" ]] && git show-ref --verify --quiet "refs/tags/$tag"; then
+              echo "::warning::A draft already has an existing tag. Drafts were left unchanged; see docs/releases.md."
+              echo "safe=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done <<< "$drafts"
+          echo "safe=true" >> "$GITHUB_OUTPUT"
+
+      - name: Update the draft
+        if: steps.drafts.outputs.safe == 'true'
+        uses: release-drafter/release-drafter@v7.10.0
+        with:
+          config-name: release-drafter.yml
+          commitish: ${{ github.sha }}
+          version: ${{ inputs.version }}
+          from: ${{ inputs.from }}
+          prerelease: false
+          publish: false

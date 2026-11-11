@@ -1,41 +1,83 @@
-name: Release
+name: Publish package
+
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-permissions:
-  contents: write
-  packages: write
-  issues: write
-  pull-requests: write
-jobs:
   release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-latest
+  cancel-in-progress: false
+
+jobs:
+  publish:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
-      - name: Checkout
+      - name: Checkout the release commit
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: Validate the release tag
+        env:
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [[ "$IS_PRERELEASE" != false ]] || ! [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Only stable releases with a vX.Y.Z tag are supported."
+            exit 1
+          fi
+          if [[ "$(git rev-parse HEAD)" != "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" ]]; then
+            echo "::error::The release tag does not point to the checked-out commit."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::The release commit must belong to main."
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: "@parcellab"
+
+      - name: Check that the package version is unpublished
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if npm view "@parcellab/sift@${RELEASE_TAG#v}" version --json \
+            --registry=https://npm.pkg.github.com > "$RUNNER_TEMP/package-version.json"; then
+            echo "::error::This package version is already published. Do not reuse or move its tag."
+            exit 1
+          fi
+          node -e '
+            const fs = require("node:fs");
+            const result = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/package-version.json", "utf8"));
+            if (result.error?.code !== "E404") {
+              throw new Error("Could not verify package availability; check registry access before retrying.");
+            }
+          '
 
       - name: Install dependencies
         run: npm ci
 
-      # lib/ is committed too, for consumers still installing from a git tarball
-      - name: Build
-        run: npm run build
+      - name: Prepare the package version
+        run: npm version "${RELEASE_TAG#v}" --no-git-tag-version --ignore-scripts
 
-      - name: Test
-        run: npm test
-
-      - name: Release
+      # prepublishOnly builds lib/ and runs both spec and type tests before upload.
+      - name: Build, test, and publish to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --registry=https://npm.pkg.github.com --tag=latest
+
+      - name: Summarize publication
+        run: |
+          echo "Published @parcellab/sift@${RELEASE_TAG#v} to GitHub Packages (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"

@@ -1,7 +1,7 @@
 {
   "name": "@parcellab/sift",
   "description": "MongoDB query filtering in JavaScript",
-  "version": "18.3.1",
+  "version": "19.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/parcelLab/sift.git"
@@ -25,7 +25,6 @@
     "mongodb": "^7.8.0",
     "prettier": "^3.9.10",
     "pretty-quick": "^4.2.2",
-    "semantic-release": "^25.0.9",
     "typescript": "^7.0.2"
   },
   "scripts": {

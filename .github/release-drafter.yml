@@ -1,0 +1,49 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+tag-prefix: v
+change-template: "- $TITLE (#$NUMBER)"
+change-title-escapes: '\<*_&'
+filter-by-commitish: false
+include-pre-releases: false
+
+categories:
+  - type: pre-exclude
+    when:
+      label: skip-changelog
+  - title: Breaking changes
+    semver-increment: major
+    exclusive: true
+    when:
+      - conventional:
+          breaking: true
+      - label: major
+  - title: Features
+    semver-increment: minor
+    exclusive: true
+    when:
+      - conventional:
+          type: feat
+      - labels: [feature, enhancement, minor]
+  - title: Fixes
+    semver-increment: patch
+    exclusive: true
+    when:
+      - conventional:
+          types: [fix, perf]
+      - labels: [bug, fix, patch]
+  - title: Dependencies
+    semver-increment: patch
+    collapse-after: 0
+    exclusive: true
+    when:
+      - label: dependencies
+      - conventional:
+          scopes: [deps, deps-dev]
+  - title: Maintenance
+    semver-increment: patch
+    collapse-after: 3
+
+template: |
+  $CHANGES
+
+  **Full changelog:** https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_TAG
