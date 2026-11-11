@@ -31,7 +31,6 @@
     "clean": "rm -rf lib",
     "prebuild": "npm run clean",
     "build": "tsc",
-    "build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir lib",
     "format": "prettier --write .",
     "format:staged": "lint-staged",
     "test": "npm run test:spec && npm run test:types",

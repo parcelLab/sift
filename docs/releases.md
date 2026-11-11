@@ -36,7 +36,7 @@ The release tag is the source of truth for the published version. CI checks out 
 
 The package is published from the repository root, preserving the existing `index.js`, `lib/`, type declarations, and package file list. Keep `lib/` committed and up to date in pull requests because consumers that install from Git tags still need the built files.
 
-Publication runs the existing `prepublishOnly` script, which runs `npm run build` and `npm test` before upload. `npm test` includes both `test:spec` and `test:types`. Run these same build and test scripts locally when preparing changes.
+Publication runs the existing `prepublishOnly` script, which runs `npm run build` and `npm test` before upload. `npm run build` generates both JavaScript and TypeScript declarations in `lib/`. `npm test` includes both `test:spec` and `test:types`. Run these same build and test scripts locally when preparing changes.
 
 Before a commit, the Git hook runs `npm run format:staged`, followed by `npm test` if formatting succeeds. `lint-staged` runs Prettier on staged files with supported formats and adds the formatting changes to the index. Unstaged changes in partially staged files are temporarily hidden and restored afterward. Generated files in `lib/` remain excluded by `.prettierignore`.
 
