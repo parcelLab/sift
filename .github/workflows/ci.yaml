@@ -91,7 +91,7 @@ jobs:
 
       - name: Update the draft
         if: steps.drafts.outputs.safe == 'true'
-        uses: release-drafter/release-drafter@v7.10.0
+        uses: release-drafter/release-drafter@v7.11.0
         with:
           config-name: release-drafter.yml
           commitish: ${{ github.sha }}
