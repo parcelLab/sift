@@ -15,7 +15,31 @@ on:
         type: string
 jobs:
   ci_checks:
-    uses: parcellab/ci/.github/workflows/ci-requirements.yaml@v9
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    outputs:
+      test_run_required: ${{ steps.filter.outputs.test_run_required }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check tests run required
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          predicate-quantifier: "some"
+          filters: |
+            test_run_required:
+              - "**.js"
+              - "**.jsx"
+              - "**.ts"
+              - "**.tsx"
+              - "**.mjs"
+              - "**.cjs"
+              - "package.json"
+              - "package-lock.json"
+              - "tsconfig*.json"
 
   test:
     needs: ci_checks
@@ -50,7 +74,6 @@ jobs:
     steps:
       - name: Show CI check results
         run: |
-          echo "full_run_required=${{ needs.ci_checks.outputs.full_run_required }}"
           echo "test_run_required=${{ needs.ci_checks.outputs.test_run_required }}"
       - name: Fail if a required job failed
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
